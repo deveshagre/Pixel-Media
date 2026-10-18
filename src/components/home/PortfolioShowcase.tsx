@@ -17,6 +17,50 @@ const CATEGORIES: { id: ServiceCategory | 'all'; label: string }[] = [
   { id: 'motion_graphics', label: '3D Motion' },
 ];
 
+interface BenchmarkScene {
+  id: string;
+  name: string;
+  category: string;
+  image: string;
+  rawLabel: string;
+  masterLabel: string;
+  rawFilter: string;
+  specs: string;
+}
+
+const BENCHMARK_SCENES: BenchmarkScene[] = [
+  {
+    id: 'automotive',
+    name: 'Automotive Cinema',
+    category: 'Commercial Film Color Grading',
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=85',
+    rawLabel: 'RAW Sensor Capture (LogC3)',
+    masterLabel: 'Final Master Grade (Kodak 2383)',
+    rawFilter: 'saturate(0.35) contrast(0.70) brightness(1.16) sepia(0.05)',
+    specs: 'ARRI Alexa Mini LF • 4.5K Open Gate • ProRes 4444 XQ • ACES 1.3',
+  },
+  {
+    id: 'beauty',
+    name: 'Fashion Editorial',
+    category: 'High-End Image Retouching',
+    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1920&q=85',
+    rawLabel: 'Unretouched Studio Plate',
+    masterLabel: 'Texture & Color Master',
+    rawFilter: 'saturate(0.40) contrast(0.76) brightness(1.10)',
+    specs: 'Hasselblad 100MP • 16-Bit TIFF • ProPhoto RGB • Non-Destructive',
+  },
+  {
+    id: 'cyberpunk',
+    name: 'Tokyo Neon Night',
+    category: 'Cinematic Anamorphic Grade',
+    image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85',
+    rawLabel: 'Flat High-ISO Digital RAW',
+    masterLabel: 'Teal & Neon Contrast Master',
+    rawFilter: 'saturate(0.30) contrast(0.68) brightness(1.22)',
+    specs: 'RED V-Raptor 8K • Cooke Anamorphic /i • Wide Color Gamut',
+  },
+];
+
 export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
   onStartSimilarProject,
 }) => {
@@ -24,9 +68,13 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
 
   // Before & After Slider State
+  const [activeBenchmarkId, setActiveBenchmarkId] = useState<string>('automotive');
   const [splitPercent, setSplitPercent] = useState<number>(50);
   const sliderBoxRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef<boolean>(false);
+
+  const activeBenchmark =
+    BENCHMARK_SCENES.find((s) => s.id === activeBenchmarkId) || BENCHMARK_SCENES[0];
 
   const filteredItems =
     activeFilter === 'all'
@@ -152,16 +200,35 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
 
         {/* Before & After Comparison Feature */}
         <div className="comparison-editorial-block">
-          <div style={{ marginBottom: 24, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ marginBottom: 20, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <span className="editorial-label">Finishing Benchmark</span>
-              <h3 style={{ fontSize: 24, fontWeight: 600, color: '#ffffff' }}>
+              <h3 style={{ fontSize: 24, fontWeight: 600, color: '#ffffff', marginBottom: 4 }}>
                 Color Grading & Retouching Precision
               </h3>
+              <p style={{ fontSize: 13, color: '#a1a1aa', margin: 0 }}>
+                {activeBenchmark.category} • {activeBenchmark.specs}
+              </p>
             </div>
-            <span style={{ fontSize: 13, color: '#71717a', fontFamily: 'monospace' }}>
-              DRAG SLIDER TO REVEAL MASTER GRADE
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 12, color: '#71717a', fontFamily: 'monospace' }}>
+                DRAG SLIDER TO REVEAL MASTER GRADE
+              </span>
+            </div>
+          </div>
+
+          {/* Benchmark Scene Selector Pills */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+            {BENCHMARK_SCENES.map((scene) => (
+              <button
+                key={scene.id}
+                onClick={() => setActiveBenchmarkId(scene.id)}
+                className={`editorial-filter-btn ${activeBenchmarkId === scene.id ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: 12 }}
+              >
+                {scene.name}
+              </button>
+            ))}
           </div>
 
           <div
@@ -181,31 +248,31 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
             {/* Graded Finished Master Layer */}
             <div className="slider-img-layer">
               <img
-                src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=85"
-                alt="Finished Master Grade"
+                src={activeBenchmark.image}
+                alt={activeBenchmark.masterLabel}
               />
             </div>
 
-            {/* RAW Flat Log Layer */}
+            {/* RAW Flat Log Layer (Exact same image, styled with genuine camera flat log filter) */}
             <div
               className="slider-img-layer"
               style={{
                 clipPath: `polygon(0% 0%, ${splitPercent}% 0%, ${splitPercent}% 100%, 0% 100%)`,
-                filter: 'saturate(0.55) contrast(0.85) brightness(1.08)',
+                filter: activeBenchmark.rawFilter,
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1600&q=70"
-                alt="RAW Log Sensor Capture"
+                src={activeBenchmark.image}
+                alt={activeBenchmark.rawLabel}
               />
             </div>
 
             {/* Labels */}
             <div className="slider-tag-pill" style={{ left: 16 }}>
-              RAW Sensor Capture
+              {activeBenchmark.rawLabel}
             </div>
             <div className="slider-tag-pill" style={{ right: 16 }}>
-              Final Master Grade
+              {activeBenchmark.masterLabel}
             </div>
 
             {/* Split Handle Line */}

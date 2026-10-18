@@ -22,9 +22,7 @@ const COMPARISON_PROJECTS: ComparisonProject[] = [
     category: 'Commercial Film Color Grading',
     beforeLabel: 'RAW LogC3 (Ungraded Flat)',
     afterLabel: 'ACEScc Kodak 2383 3D LUT Master',
-    // Using filtered high-res still for Raw Log flat look
-    beforeImg: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1600&q=70',
-    // Rich color and contrast for graded look
+    beforeImg: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=85',
     afterImg: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=85',
     beforeDesc: 'Flat dynamic range capture straight from sensor. Low contrast, muted color gamut, desaturated shadows.',
     afterDesc: 'Full ACES 1.3 color space pipeline with warm highlights, deep cinematic blacks, and calibrated metallic reflections.',
@@ -36,7 +34,7 @@ const COMPARISON_PROJECTS: ComparisonProject[] = [
     category: 'High-End Image Retouching',
     beforeLabel: '100MP Studio Plate (Unretouched)',
     afterLabel: 'Frequency Separation & Texture Master',
-    beforeImg: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=70',
+    beforeImg: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=85',
     afterImg: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=85',
     beforeDesc: 'Microscopic blemishes, uneven studio flash falloff, flyaway hairs, and specular jewelry reflections.',
     afterDesc: 'Preserved organic skin pore texture, non-destructive dodge & burn, eye luminance enhancement, and CMYK pre-press proof.',
@@ -48,7 +46,7 @@ const COMPARISON_PROJECTS: ComparisonProject[] = [
     category: 'Esports & Gaming Content',
     beforeLabel: '1080p Twitch Stream VOD Capture',
     afterLabel: '4K60 Upscaled + 3D HUD & Velocity Ramp',
-    beforeImg: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1600&q=70',
+    beforeImg: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=85',
     afterImg: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=85',
     beforeDesc: 'Compressed 6Mbps Twitch capture with standard 1080p bitrate and flat stream audio.',
     afterDesc: 'AI-assisted optical flow 4K60 frame synthesis, beat-synced speed ramping, 3D camera pan, and spatial audio mastering.',
@@ -187,7 +185,11 @@ export const BeforeAfterComparison: React.FC = () => {
             className="comparison-layer"
             style={{
               clipPath: `polygon(0% 0%, ${splitPercent}% 0%, ${splitPercent}% 100%, 0% 100%)`,
-              filter: selectedProjectId === 'automotive_grade' ? 'saturate(0.5) contrast(0.85) brightness(1.1)' : 'none',
+              filter: selectedProjectId === 'automotive_grade'
+                ? 'saturate(0.35) contrast(0.70) brightness(1.15) sepia(0.05)'
+                : selectedProjectId === 'fashion_retouch'
+                ? 'saturate(0.40) contrast(0.76) brightness(1.10)'
+                : 'saturate(0.30) contrast(0.68) brightness(1.22)',
             }}
           >
             <img
