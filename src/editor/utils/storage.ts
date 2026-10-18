@@ -187,8 +187,8 @@ export const createDefaultProject = (name = 'Pixel Media Creative Sequence'): Ti
     {
       id: 'clip-hero-media',
       trackId: 'track-v1',
-      assetId: 'asset-esports-showreel',
-      name: 'VCT Championship — Esports Finals Reel',
+      assetId: 'footage-horizon-auto',
+      name: 'Apex Horizon — Supercar Track Anthem',
       type: 'image',
       startFrame: 0,
       durationFrames: 600, // 20 seconds
@@ -375,6 +375,21 @@ export const loadProjectLocal = (projectId?: string): TimelineProject | null => 
       if (!hasHeroClips && !projectId) {
         return null;
       }
+
+      if (hasHeroClips && !projectId) {
+        // Auto-heal legacy cached default project where media was esports but headline was "Make every frame count."
+        const headline = project.clips.find((c) => c.id === 'clip-hero-headline');
+        const media = project.clips.find((c) => c.id === 'clip-hero-media');
+        if (
+          headline?.textConfig?.text === 'Make every frame count.' &&
+          media &&
+          (media.assetId === 'asset-esports-showreel' || media.name.includes('Esports'))
+        ) {
+          media.assetId = 'footage-horizon-auto';
+          media.name = 'Apex Horizon — Supercar Track Anthem';
+        }
+      }
+
       return project;
     }
     return null;

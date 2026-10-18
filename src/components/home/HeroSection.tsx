@@ -35,8 +35,8 @@ const PRESET_SCENES: ShowreelPreset[] = [
   {
     id: 'scene-1',
     category: 'Commercial Film',
-    assetId: 'asset-sample-cyber',
-    name: 'Horizon Automotive — Broadcast Sequence',
+    assetId: 'footage-horizon-auto',
+    name: 'Apex Horizon — Supercar Track Anthem',
     imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=85',
     headline: 'Make every frame count.',
     subtitle: 'Thoughtful editing, striking visuals, and motion that brings your ideas to life.',
@@ -44,8 +44,8 @@ const PRESET_SCENES: ShowreelPreset[] = [
   {
     id: 'scene-2',
     category: 'Beauty & Retouching',
-    assetId: 'asset-sample-urban',
-    name: 'Luminary Autumn — Editorial Master',
+    assetId: 'footage-luminary-fashion',
+    name: 'Vogue Luminary — Autumn Cover Master',
     imageUrl: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1920&q=85',
     headline: 'Elegance in every pixel.',
     subtitle: 'Precision color grading, high-end skin texture retouching, and cinematic pacing.',
@@ -53,8 +53,8 @@ const PRESET_SCENES: ShowreelPreset[] = [
   {
     id: 'scene-3',
     category: 'Esports Highlights',
-    assetId: 'asset-esports-showreel',
-    name: 'VCT Championship — Esports Finals Reel',
+    assetId: 'footage-esports-final',
+    name: 'VCT Championship — Grand Finals Reel',
     imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=85',
     headline: 'Kinetic energy at 240 FPS.',
     subtitle: 'High-impact gameplay sequencing, audio sync, sound design, and custom 3D motion.',
@@ -77,9 +77,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     canUndo,
     canRedo,
     saveStatus,
+    engine,
   } = useEditor();
 
-  const [activeSceneIndex, setActiveSceneIndex] = useState(0);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [editingHeadlineInline, setEditingHeadlineInline] = useState(false);
   const [editingSubtitleInline, setEditingSubtitleInline] = useState(false);
@@ -87,6 +87,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   // Retrieve headline and subtitle clips from project
   const headlineClip = project.clips.find((c) => c.id === 'clip-hero-headline');
   const subtitleClip = project.clips.find((c) => c.id === 'clip-hero-subtitle');
+  const mediaClip = project.clips.find((c) => c.id === 'clip-hero-media');
+
+  // Compute active scene pill based on active media clip in the sequence
+  const activeSceneIndex = React.useMemo(() => {
+    if (!mediaClip) return 0;
+    const currentAssetId = mediaClip.assetId;
+    const idx = PRESET_SCENES.findIndex((s) => {
+      if (s.assetId === currentAssetId) return true;
+      if (s.id === 'scene-1' && (currentAssetId === 'footage-horizon-auto' || currentAssetId === 'asset-sample-cyber')) return true;
+      if (s.id === 'scene-2' && (currentAssetId === 'footage-luminary-fashion' || currentAssetId === 'asset-sample-urban')) return true;
+      if (s.id === 'scene-3' && (currentAssetId === 'footage-esports-final' || currentAssetId === 'asset-esports-showreel')) return true;
+      return false;
+    });
+    return idx >= 0 ? idx : -1;
+  }, [mediaClip?.assetId]);
 
   const headlineText = headlineClip?.textConfig?.text || 'Make every frame count.';
   const subtitleText =
@@ -95,38 +110,52 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   // Switch showreel preset scene
   const handleSelectScene = (index: number) => {
-    setActiveSceneIndex(index);
     const preset = PRESET_SCENES[index];
     if (!preset) return;
 
+    // Preload & register in engine immediately
+    if (typeof window !== 'undefined') {
+      const img = new Image();
+      if (preset.imageUrl.startsWith('http://') || preset.imageUrl.startsWith('https://')) {
+        img.crossOrigin = 'anonymous';
+      }
+      img.src = preset.imageUrl;
+      img.onload = () => {
+        engine.notifyMediaLoaded();
+      };
+      engine.registerMediaElement(preset.assetId, img);
+    }
+
     // Update media clip
-    const mediaClip = project.clips.find((c) => c.id === 'clip-hero-media');
-    if (mediaClip) {
-      updateClip(mediaClip.id, {
+    const targetMedia = project.clips.find((c) => c.id === 'clip-hero-media');
+    if (targetMedia) {
+      updateClip(targetMedia.id, {
         assetId: preset.assetId,
         name: preset.name,
       });
     }
 
     // Update headline clip text
-    if (headlineClip) {
+    if (headlineClip && headlineClip.textConfig) {
       updateClip(headlineClip.id, {
         textConfig: {
-          ...headlineClip.textConfig!,
+          ...headlineClip.textConfig,
           text: preset.headline,
         },
       });
     }
 
     // Update subtitle clip text
-    if (subtitleClip) {
+    if (subtitleClip && subtitleClip.textConfig) {
       updateClip(subtitleClip.id, {
         textConfig: {
-          ...subtitleClip.textConfig!,
+          ...subtitleClip.textConfig,
           text: preset.subtitle,
         },
       });
     }
+
+    engine.notifyMediaLoaded();
   };
 
   return (
