@@ -143,6 +143,36 @@ export const OverviewSection: React.FC = () => {
             </div>
           </div>
 
+          {/* Open Video Editor Studio */}
+          <div
+            className="card card-interactive"
+            onClick={() => navigate('/editor')}
+            style={{ cursor: 'pointer', display: 'flex', gap: 14, alignItems: 'flex-start' }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 'var(--radius-md)',
+                background: 'rgba(228, 179, 99, 0.15)',
+                color: '#e4b363',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Film size={20} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>Open Video Editor</span>
+                <span className="badge badge-indigo" style={{ fontSize: 10 }}>STUDIO</span>
+              </h4>
+              <p className="text-caption">Launch the browser-based nonlinear timeline & motion graphics workspace.</p>
+            </div>
+          </div>
+
           <div
             className="card card-interactive"
             onClick={() => navigate('/dashboard/portfolio')}

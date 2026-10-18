@@ -9,7 +9,8 @@ import { OverviewSection } from './components/dashboard/OverviewSection';
 import { PortfolioSection } from './components/portfolio/PortfolioSection';
 import { ServicesSection } from './components/services/ServicesSection';
 import { HelpCenterSection } from './components/help/HelpCenterSection';
-import { EditorPlaceholder } from './components/editor/EditorPlaceholder';
+import { EditorWorkspace } from './components/editor/EditorWorkspace';
+import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 
@@ -20,6 +21,9 @@ export const App: React.FC = () => {
         <ClientDataProvider>
           <BrowserRouter>
             <Routes>
+              {/* Public Cinematic Homepage */}
+              <Route path="/" element={<HomePage />} />
+
               {/* Public Authentication Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
@@ -40,18 +44,18 @@ export const App: React.FC = () => {
                 <Route path="help" element={<HelpCenterSection />} />
               </Route>
 
-              {/* Protected Editor Placeholder Route (Phase 2) */}
+              {/* Dedicated Nonlinear Editor Route */}
               <Route
                 path="/editor"
                 element={
                   <ProtectedRoute>
-                    <EditorPlaceholder />
+                    <EditorWorkspace />
                   </ProtectedRoute>
                 }
               />
 
               {/* Fallback */}
-              <Route path="*" element={<Navigate to="/dashboard/overview" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
         </ClientDataProvider>
