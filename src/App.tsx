@@ -6,11 +6,15 @@ import { ClientDataProvider } from './context/ClientDataContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { OverviewSection } from './components/dashboard/OverviewSection';
-import { PortfolioSection } from './components/portfolio/PortfolioSection';
+import { MarketplaceRequestsView } from './components/dashboard/MarketplaceRequestsView';
+import { EditorPortfolioManager } from './components/dashboard/EditorPortfolioManager';
+import { EditorProfileSettings } from './components/dashboard/EditorProfileSettings';
+import { AdminModerationView } from './components/dashboard/AdminModerationView';
 import { ServicesSection } from './components/services/ServicesSection';
 import { HelpCenterSection } from './components/help/HelpCenterSection';
-import { EditorWorkspace } from './components/editor/EditorWorkspace';
 import { HomePage } from './pages/HomePage';
+import { ExplorePage } from './pages/ExplorePage';
+import { EditorProfilePage } from './pages/EditorProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 
@@ -21,14 +25,20 @@ export const App: React.FC = () => {
         <ClientDataProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Cinematic Homepage */}
+              {/* Public Marketplace Landing */}
               <Route path="/" element={<HomePage />} />
+
+              {/* Public Marketplace Discovery / Search */}
+              <Route path="/explore" element={<ExplorePage />} />
+
+              {/* Public Editor Profile & Portfolio */}
+              <Route path="/editors/:id" element={<EditorProfilePage />} />
 
               {/* Public Authentication Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
 
-              {/* Protected Client Dashboard Routes */}
+              {/* Protected Role-Based Dashboard Routes */}
               <Route
                 path="/dashboard"
                 element={
@@ -39,20 +49,16 @@ export const App: React.FC = () => {
               >
                 <Route index element={<Navigate to="/dashboard/overview" replace />} />
                 <Route path="overview" element={<OverviewSection />} />
-                <Route path="portfolio" element={<PortfolioSection />} />
+                <Route path="requests" element={<MarketplaceRequestsView />} />
+                <Route path="portfolio" element={<EditorPortfolioManager />} />
+                <Route path="profile" element={<EditorProfileSettings />} />
+                <Route path="moderation" element={<AdminModerationView />} />
                 <Route path="services" element={<ServicesSection />} />
                 <Route path="help" element={<HelpCenterSection />} />
               </Route>
 
-              {/* Dedicated Nonlinear Editor Route */}
-              <Route
-                path="/editor"
-                element={
-                  <ProtectedRoute>
-                    <EditorWorkspace />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Legacy timeline editor redirect -> marketplace talent directory */}
+              <Route path="/editor" element={<Navigate to="/explore" replace />} />
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -23,7 +23,7 @@ export const PortfolioSection: React.FC = () => {
   const filteredItems =
     selectedCategory === 'all'
       ? PORTFOLIO_ITEMS
-      : PORTFOLIO_ITEMS.filter((item) => item.category === selectedCategory);
+      : PORTFOLIO_ITEMS.filter((item) => (item.category as string) === selectedCategory);
 
   return (
     <div>
@@ -100,7 +100,7 @@ export const PortfolioSection: React.FC = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  {t.categories[item.category] || item.categoryLabel}
+                  {(typeof item.category === 'string' && t.categories[item.category as keyof typeof t.categories]) || item.categoryLabel || ''}
                 </span>
                 <span className="text-caption">{item.year}</span>
               </div>
@@ -227,7 +227,7 @@ export const PortfolioSection: React.FC = () => {
                 marginBottom: 20,
               }}
             >
-              {activeItem.deliverables.map((deliv, idx) => (
+              {(activeItem.deliverables || []).map((deliv: string, idx: number) => (
                 <div
                   key={idx}
                   style={{
@@ -245,7 +245,7 @@ export const PortfolioSection: React.FC = () => {
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {activeItem.tags.map((tag, idx) => (
+              {(activeItem.tags || []).map((tag: string, idx: number) => (
                 <span
                   key={idx}
                   style={{

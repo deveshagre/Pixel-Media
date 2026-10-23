@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { UserProfile, SupportedLanguage } from '../types';
+import { UserProfile, SupportedLanguage, UserRole } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface AuthContextType {
@@ -11,22 +11,46 @@ interface AuthContextType {
     email: string,
     password: string,
     fullName: string,
+    role?: UserRole,
     company?: string
   ) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  switchRole: (role: UserRole) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LOCAL_USER_KEY = 'pixel_client_auth_user';
+const LOCAL_USER_KEY = 'pixel_pedia_auth_user';
+
+function mapProfileRow(row: Record<string, unknown>, fallback?: Partial<UserProfile>): UserProfile {
+  return {
+    id: (row.id as string) || fallback?.id || '',
+    email: (row.email as string) || fallback?.email || '',
+    fullName: (row.full_name as string) || fallback?.fullName || '',
+    company: (row.company as string) || fallback?.company || '',
+    avatarUrl: (row.avatar_url as string) || fallback?.avatarUrl,
+    preferredLanguage: ((row.preferred_language as SupportedLanguage) || fallback?.preferredLanguage || 'en'),
+    createdAt: (row.created_at as string) || fallback?.createdAt || new Date().toISOString(),
+    role: ((row.role as UserRole) || fallback?.role || 'client'),
+    bio: (row.bio as string) || fallback?.bio,
+    headline: (row.headline as string) || fallback?.headline,
+    experienceLevel: (row.experience_level as UserProfile['experienceLevel']) || fallback?.experienceLevel,
+    availability: (row.availability as UserProfile['availability']) || fallback?.availability || 'available',
+    startingPrice: (row.starting_price as number) || fallback?.startingPrice,
+    contactForQuote: (row.contact_for_quote as boolean) ?? fallback?.contactForQuote ?? false,
+    location: (row.location as string) || fallback?.location,
+    websiteUrl: (row.website_url as string) || fallback?.websiteUrl,
+    isPublished: (row.is_published as boolean) ?? fallback?.isPublished ?? false,
+    onboardingCompleted: (row.onboarding_completed as boolean) ?? fallback?.onboardingCompleted ?? false,
+  };
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Initialize session
   useEffect(() => {
     let mounted = true;
 
@@ -37,25 +61,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (error) throw error;
 
           if (session?.user && mounted) {
-            // Fetch profile
             const { data: profile } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .maybeSingle();
 
-            setUser({
-              id: session.user.id,
-              email: session.user.email || '',
-              fullName: profile?.full_name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Client',
-              company: profile?.company || session.user.user_metadata?.company || '',
-              avatarUrl: profile?.avatar_url || session.user.user_metadata?.avatar_url,
-              preferredLanguage: (profile?.preferred_language as SupportedLanguage) || 'en',
-              createdAt: profile?.created_at || session.user.created_at,
-            });
+            if (profile) {
+              setUser(mapProfileRow(profile, {
+                id: session.user.id,
+                email: session.user.email || '',
+                fullName: session.user.user_metadata?.full_name,
+              }));
+            } else {
+              setUser({
+                id: session.user.id,
+                email: session.user.email || '',
+                fullName: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                role: (session.user.user_metadata?.role as UserRole) || 'client',
+                preferredLanguage: 'en',
+                createdAt: session.user.created_at,
+              });
+            }
           }
-        } catch (err: any) {
-          console.warn('Supabase auth session error:', err.message);
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Auth error';
+          console.warn('Supabase auth session error:', message);
         }
       } else {
         // Local mode session restore
@@ -64,12 +95,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (cached && mounted) {
             setUser(JSON.parse(cached));
           } else if (mounted) {
-            // Default pre-authenticated demo user for immediate review out-of-the-box
             const demoUser: UserProfile = {
               id: 'demo-client-01',
               email: 'producer@pixelmedia.studio',
               fullName: 'Alex Vance',
               company: 'Apex Horizon Studios',
+              role: 'client',
               preferredLanguage: 'en',
               createdAt: new Date().toISOString(),
             };
@@ -86,13 +117,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
 
-    // Set up Supabase listener if configured
     let subscription: { unsubscribe: () => void } | null = null;
     const client = supabase;
     if (isSupabaseConfigured && client) {
-      const { data } = client.auth.onAuthStateChange(async (event, session) => {
+      const { data } = client.auth.onAuthStateChange(async (_event, session) => {
         if (!mounted) return;
-        if (event === 'SIGNED_OUT' || !session) {
+        if (_event === 'SIGNED_OUT' || !session) {
           setUser(null);
         } else if (session?.user) {
           const { data: profile } = await client
@@ -101,15 +131,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .eq('id', session.user.id)
             .maybeSingle();
 
-          setUser({
-            id: session.user.id,
-            email: session.user.email || '',
-            fullName: profile?.full_name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Client',
-            company: profile?.company || session.user.user_metadata?.company || '',
-            avatarUrl: profile?.avatar_url || session.user.user_metadata?.avatar_url,
-            preferredLanguage: (profile?.preferred_language as SupportedLanguage) || 'en',
-            createdAt: profile?.created_at || session.user.created_at,
-          });
+          if (profile) {
+            setUser(mapProfileRow(profile, {
+              id: session.user.id,
+              email: session.user.email || '',
+            }));
+          }
         }
       });
       subscription = data.subscription;
@@ -132,10 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (isSupabaseConfigured && supabase) {
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) return { success: false, error: error.message };
 
           if (data.user) {
@@ -145,37 +169,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .eq('id', data.user.id)
               .maybeSingle();
 
-            const loggedInUser: UserProfile = {
-              id: data.user.id,
-              email: data.user.email || email,
-              fullName: profile?.full_name || data.user.user_metadata?.full_name || email.split('@')[0],
-              company: profile?.company || data.user.user_metadata?.company || '',
-              avatarUrl: profile?.avatar_url,
-              preferredLanguage: (profile?.preferred_language as SupportedLanguage) || 'en',
-              createdAt: profile?.created_at || new Date().toISOString(),
-            };
-            setUser(loggedInUser);
+            if (profile) {
+              setUser(mapProfileRow(profile, { id: data.user.id, email }));
+            }
             return { success: true };
           }
-          return { success: false, error: 'Authentication failed. Please verify credentials.' };
-        } catch (err: any) {
-          return { success: false, error: err.message || 'Authentication error.' };
+          return { success: false, error: 'Authentication failed.' };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Auth error';
+          return { success: false, error: message };
         }
       }
 
-      // Local persistent authentication mode
+      // Local persistent auth
       const normalizedEmail = email.trim().toLowerCase();
       const clientHash = btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
       const localUser: UserProfile = {
-        id: `client-${clientHash || Date.now()}`,
+        id: `user-${clientHash || Date.now()}`,
         email: normalizedEmail,
         fullName: normalizedEmail.split('@')[0].replace('.', ' ').replace(/^./, (s) => s.toUpperCase()),
-        company: 'Client Studio Partner',
+        role: 'client',
         preferredLanguage: 'en',
         createdAt: new Date().toISOString(),
       };
-      setUser(localUser);
-      localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(localUser));
+      // Check if there's an existing user with this email
+      const existingKey = `pixel_pedia_user_${normalizedEmail}`;
+      const existing = localStorage.getItem(existingKey);
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        setUser(parsed);
+        localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(parsed));
+      } else {
+        setUser(localUser);
+        localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(localUser));
+        localStorage.setItem(existingKey, JSON.stringify(localUser));
+      }
       return { success: true };
     },
     []
@@ -186,10 +214,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: string,
       password: string,
       fullName: string,
+      role: UserRole = 'client',
       company?: string
     ): Promise<{ success: boolean; error?: string }> => {
       if (!email || !email.includes('@')) {
-        return { success: false, error: 'Please enter a valid work email.' };
+        return { success: false, error: 'Please enter a valid email.' };
       }
       if (!password || password.length < 6) {
         return { success: false, error: 'Password must be at least 6 characters.' };
@@ -206,6 +235,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             options: {
               data: {
                 full_name: fullName.trim(),
+                role,
                 company: company?.trim() || '',
               },
             },
@@ -218,31 +248,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               email: data.user.email || email,
               fullName: fullName.trim(),
               company: company?.trim() || '',
+              role,
               preferredLanguage: 'en',
               createdAt: new Date().toISOString(),
             };
             setUser(newUser);
             return { success: true };
           }
-          return { success: false, error: 'Sign up request failed. Please try again.' };
-        } catch (err: any) {
-          return { success: false, error: err.message || 'Sign up error.' };
+          return { success: false, error: 'Sign up failed.' };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Sign up error';
+          return { success: false, error: message };
         }
       }
 
-      // Local signup mode
+      // Local signup
       const normalizedEmail = email.trim().toLowerCase();
       const clientHash = btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
       const newUser: UserProfile = {
-        id: `client-${clientHash || Date.now()}`,
+        id: `user-${clientHash || Date.now()}`,
         email: normalizedEmail,
         fullName: fullName.trim(),
         company: company?.trim() || '',
+        role,
         preferredLanguage: 'en',
         createdAt: new Date().toISOString(),
       };
       setUser(newUser);
       localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(newUser));
+      localStorage.setItem(`pixel_pedia_user_${normalizedEmail}`, JSON.stringify(newUser));
       return { success: true };
     },
     []
@@ -253,23 +287,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
-          options: {
-            redirectTo: window.location.origin,
-          },
+          options: { redirectTo: window.location.origin },
         });
         if (error) return { success: false, error: error.message };
         return { success: true };
-      } catch (err: any) {
-        return { success: false, error: err.message };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'OAuth error';
+        return { success: false, error: message };
       }
     }
 
-    // In local demo mode, simulate Google OAuth login with high-fidelity profile
     const googleUser: UserProfile = {
-      id: 'google-client-alex',
-      email: 'alex.producer@gmail.com',
-      fullName: 'Alex Vance (Google)',
-      company: 'Apex Horizon Studios',
+      id: 'google-user-demo',
+      email: 'demo@gmail.com',
+      fullName: 'Demo Google User',
+      role: 'client',
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
       preferredLanguage: 'en',
       createdAt: new Date().toISOString(),
@@ -283,8 +315,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseConfigured && supabase) {
       try {
         await supabase.auth.signOut();
-      } catch (err: any) {
-        console.warn('Supabase sign out error:', err.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Sign out error';
+        console.warn('Sign out error:', message);
       }
     }
     setUser(null);
@@ -310,20 +343,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               company: updatedUser.company,
               preferred_language: updatedUser.preferredLanguage,
               avatar_url: updatedUser.avatarUrl,
+              role: updatedUser.role,
+              bio: updatedUser.bio,
+              headline: updatedUser.headline,
+              experience_level: updatedUser.experienceLevel,
+              availability: updatedUser.availability,
+              starting_price: updatedUser.startingPrice,
+              contact_for_quote: updatedUser.contactForQuote,
+              location: updatedUser.location,
+              website_url: updatedUser.websiteUrl,
+              is_published: updatedUser.isPublished,
+              onboarding_completed: updatedUser.onboardingCompleted,
             })
             .eq('id', user.id);
-        } catch (err: any) {
-          console.warn('Could not update profile in Supabase:', err.message);
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Update error';
+          console.warn('Could not update profile:', message);
         }
       }
 
       try {
         localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(updatedUser));
+        if (updatedUser.email) {
+          localStorage.setItem(`pixel_pedia_user_${updatedUser.email}`, JSON.stringify(updatedUser));
+        }
       } catch {
         // ignore
       }
     },
     [user]
+  );
+
+  const switchRole = useCallback(
+    async (role: UserRole) => {
+      await updateProfile({ role });
+    },
+    [updateProfile]
   );
 
   return (
@@ -337,6 +392,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithGoogle,
         logout,
         updateProfile,
+        switchRole,
       }}
     >
       {children}

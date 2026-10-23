@@ -10,6 +10,7 @@ export const SignupPage: React.FC = () => {
   const { t, language, setLanguage, supportedLanguages } = useLanguage();
   const navigate = useNavigate();
 
+  const [role, setRole] = useState<'client' | 'editor'>('client');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
@@ -27,7 +28,7 @@ export const SignupPage: React.FC = () => {
     }
 
     setLoading(true);
-    const res = await signup(email, password, fullName, company);
+    const res = await signup(email, password, fullName, role, company);
     setLoading(false);
 
     if (res.success) {
@@ -131,6 +132,56 @@ export const SignupPage: React.FC = () => {
         <div className="auth-divider">or register with email</div>
 
         <form onSubmit={handleSignup}>
+          <div className="form-group" style={{ marginBottom: 16 }}>
+            <label className="form-label">I want to:</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => setRole('client')}
+                className={`btn ${role === 'client' ? 'btn-primary' : 'btn-secondary'}`}
+                style={{
+                  padding: '10px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  borderRadius: 'var(--radius-md)',
+                  border: role === 'client' ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
+                  background: role === 'client' ? 'var(--primary)' : 'var(--bg-surface-elevated)',
+                  color: role === 'client' ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer'
+                }}
+              >
+                <span>Hire an Editor</span>
+                <span style={{ fontSize: 11, opacity: 0.8, fontWeight: 400 }}>Client Account</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('editor')}
+                className={`btn ${role === 'editor' ? 'btn-primary' : 'btn-secondary'}`}
+                style={{
+                  padding: '10px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  borderRadius: 'var(--radius-md)',
+                  border: role === 'editor' ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
+                  background: role === 'editor' ? 'var(--primary)' : 'var(--bg-surface-elevated)',
+                  color: role === 'editor' ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer'
+                }}
+              >
+                <span>Work as Editor</span>
+                <span style={{ fontSize: 11, opacity: 0.8, fontWeight: 400 }}>Creator / Freelancer</span>
+              </button>
+            </div>
+          </div>
+
           <div className="form-group">
             <label htmlFor="signup-name" className="form-label">{t.auth.fullNameLabel} *</label>
             <input

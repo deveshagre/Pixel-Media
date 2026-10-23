@@ -329,7 +329,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                 <div style={{ marginBottom: 32 }}>
                   <div className="editorial-label">Master Deliverables</div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
-                    {selectedProject.deliverables.map((deliv, idx) => (
+                    {(selectedProject.deliverables || []).map((deliv, idx) => (
                       <div
                         key={idx}
                         style={{
@@ -356,9 +356,9 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                   </button>
                   <button
                     onClick={() => {
-                      const cat = selectedProject.category;
+                      const cat = selectedProject.category as ServiceCategory;
                       setSelectedProject(null);
-                      onStartSimilarProject(cat);
+                      onStartSimilarProject(cat || 'video_editing');
                     }}
                     className="studio-btn-primary"
                   >
