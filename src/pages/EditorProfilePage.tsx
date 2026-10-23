@@ -79,12 +79,15 @@ export const EditorProfilePage: React.FC = () => {
               <div
                 className="profile-avatar-lg"
                 style={{
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  background: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-default)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 36,
-                  fontWeight: 700,
+                  fontSize: 32,
+                  fontFamily: 'var(--font-serif)',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)',
                 }}
               >
                 {editor.fullName.charAt(0)}
@@ -92,8 +95,8 @@ export const EditorProfilePage: React.FC = () => {
             )}
 
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                <h1 style={{ fontSize: clampTitle(editor.fullName), fontWeight: 800, letterSpacing: '-0.02em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+                <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: clampTitle(editor.fullName), fontWeight: 600, letterSpacing: '-0.02em' }}>
                   {editor.fullName}
                 </h1>
                 {editor.experienceLevel === 'pro' && (
@@ -142,7 +145,7 @@ export const EditorProfilePage: React.FC = () => {
                     href={editor.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#818cf8' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}
                   >
                     <Globe size={14} />
                     <span>Portfolio Website</span>
@@ -175,7 +178,7 @@ export const EditorProfilePage: React.FC = () => {
                     <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>/ project</span>
                   </>
                 ) : (
-                  <span style={{ fontSize: 20, fontWeight: 700, color: '#818cf8' }}>
+                  <span style={{ fontSize: 18, fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--text-primary)' }}>
                     Quote on Scope
                   </span>
                 )}
@@ -287,10 +290,10 @@ export const EditorProfilePage: React.FC = () => {
                     </div>
 
                     <div style={{ padding: '16px 18px' }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 600, color: '#818cf8', textTransform: 'uppercase', marginBottom: 4 }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>
                         {item.projectDuration || 'Commercial Master'}
                       </div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)', lineHeight: 1.3 }}>
                         {item.title}
                       </h3>
                       <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: 12 }}>

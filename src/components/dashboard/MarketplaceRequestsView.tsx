@@ -293,7 +293,7 @@ export const MarketplaceRequestsView: React.FC = () => {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ fontSize: 13, color: '#818cf8', display: 'flex', alignItems: 'center', gap: 4 }}
+                        style={{ fontSize: 13, color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3, display: 'flex', alignItems: 'center', gap: 4 }}
                       >
                         <ExternalLink size={13} />
                         <span>{url}</span>

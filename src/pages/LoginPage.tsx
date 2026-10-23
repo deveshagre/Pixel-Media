@@ -185,10 +185,11 @@ export const LoginPage: React.FC = () => {
               marginTop: 20,
               padding: '10px 12px',
               borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'rgba(99, 102, 241, 0.08)',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
+              backgroundColor: 'var(--bg-surface-elevated)',
+              border: '1px solid var(--border-default)',
               fontSize: 12,
-              color: '#c7d2fe',
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--text-secondary)',
               lineHeight: 1.4,
             }}
           >

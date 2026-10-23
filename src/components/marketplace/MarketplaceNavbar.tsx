@@ -71,18 +71,19 @@ export const MarketplaceNavbar: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '5px 10px',
-                borderRadius: 'var(--radius-full)',
-                fontSize: 12,
-                fontWeight: 600,
-                background: user.role === 'editor' ? 'rgba(168, 85, 247, 0.15)' : 'rgba(99, 102, 241, 0.15)',
-                border: user.role === 'editor' ? '1px solid rgba(168, 85, 247, 0.35)' : '1px solid rgba(99, 102, 241, 0.35)',
-                color: user.role === 'editor' ? '#c084fc' : '#818cf8',
+                padding: '4px 10px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: 11.5,
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 500,
+                background: 'var(--bg-surface-elevated)',
+                border: '1px solid var(--border-default)',
+                color: 'var(--text-primary)',
                 cursor: 'pointer',
               }}
             >
-              <RefreshCw size={12} />
-              <span style={{ textTransform: 'capitalize' }}>{user.role} Mode</span>
+              <RefreshCw size={11} />
+              <span style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>{user.role} Mode</span>
             </button>
 
             {/* Dashboard Link */}

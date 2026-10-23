@@ -8,16 +8,21 @@ import { useNavigate } from 'react-router-dom';
 interface ProjectRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  targetEditor: UserProfile | EditorCard | null;
+  targetEditor?: UserProfile | EditorCard | null;
+  editor?: UserProfile | EditorCard | null;
   prefilledCategory?: string;
+  onSuccess?: () => void;
 }
 
 export const ProjectRequestModal: React.FC<ProjectRequestModalProps> = ({
   isOpen,
   onClose,
-  targetEditor,
+  targetEditor: propTargetEditor,
+  editor: propEditor,
   prefilledCategory,
+  onSuccess,
 }) => {
+  const targetEditor = propTargetEditor || propEditor || null;
   const { user } = useAuth();
   const navigate = useNavigate();
   const { flatCategories } = useCategories();
@@ -86,6 +91,7 @@ export const ProjectRequestModal: React.FC<ProjectRequestModalProps> = ({
       });
 
       setSuccess(true);
+      onSuccess?.();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to submit request.');
     } finally {
@@ -201,7 +207,7 @@ export const ProjectRequestModal: React.FC<ProjectRequestModalProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <span style={{ fontSize: 12, color: '#818cf8', fontWeight: 500 }}>Custom Quote</span>
+                  <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontWeight: 500 }}>Custom Quote</span>
                 )}
               </div>
 
@@ -333,7 +339,7 @@ export const ProjectRequestModal: React.FC<ProjectRequestModalProps> = ({
                       />
                     </div>
                   ) : (
-                    <div style={{ padding: '8px 12px', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', fontSize: 13, color: '#818cf8', border: '1px solid var(--border-subtle)' }}>
+                    <div style={{ padding: '8px 12px', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', fontSize: 13, color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}>
                       Requesting editor's customized estimate based on brief
                     </div>
                   )}

@@ -48,7 +48,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenMobile, onRequestService, 
               : 'Local isolated client storage mode active. Connect Supabase via .env for cloud persistence.'
           }
         >
-          <ShieldCheck size={14} color={isConfigured ? 'var(--accent-success)' : '#818cf8'} />
+          <ShieldCheck size={14} color={isConfigured ? 'var(--accent-success)' : 'var(--text-secondary)'} />
           <span className="hide-on-mobile">
             {isConfigured ? 'Supabase Connected' : 'Local Demo Vault'}
           </span>

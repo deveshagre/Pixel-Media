@@ -147,15 +147,15 @@ export const SignupPage: React.FC = () => {
                   gap: 4,
                   fontSize: 13,
                   fontWeight: 600,
-                  borderRadius: 'var(--radius-md)',
-                  border: role === 'client' ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
-                  background: role === 'client' ? 'var(--primary)' : 'var(--bg-surface-elevated)',
-                  color: role === 'client' ? '#fff' : 'var(--text-secondary)',
+                  borderRadius: 'var(--radius-sm)',
+                  border: role === 'client' ? '1px solid var(--text-primary)' : '1px solid var(--border-default)',
+                  background: role === 'client' ? 'var(--text-primary)' : 'var(--bg-surface-elevated)',
+                  color: role === 'client' ? 'var(--bg-app)' : 'var(--text-secondary)',
                   cursor: 'pointer'
                 }}
               >
                 <span>Hire an Editor</span>
-                <span style={{ fontSize: 11, opacity: 0.8, fontWeight: 400 }}>Client Account</span>
+                <span style={{ fontSize: 11, opacity: 0.8, fontWeight: 500 }}>Client Account</span>
               </button>
               <button
                 type="button"
@@ -169,10 +169,10 @@ export const SignupPage: React.FC = () => {
                   gap: 4,
                   fontSize: 13,
                   fontWeight: 600,
-                  borderRadius: 'var(--radius-md)',
-                  border: role === 'editor' ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
-                  background: role === 'editor' ? 'var(--primary)' : 'var(--bg-surface-elevated)',
-                  color: role === 'editor' ? '#fff' : 'var(--text-secondary)',
+                  borderRadius: 'var(--radius-sm)',
+                  border: role === 'editor' ? '1px solid var(--text-primary)' : '1px solid var(--border-default)',
+                  background: role === 'editor' ? 'var(--text-primary)' : 'var(--bg-surface-elevated)',
+                  color: role === 'editor' ? 'var(--bg-app)' : 'var(--text-secondary)',
                   cursor: 'pointer'
                 }}
               >

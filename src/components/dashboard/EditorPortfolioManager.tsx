@@ -112,7 +112,7 @@ export const EditorPortfolioManager: React.FC = () => {
               </div>
 
               <div style={{ padding: '16px 18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 11.5, color: '#818cf8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', marginBottom: 4 }}>
                   {item.editorRole || 'Lead Editor'}
                 </div>
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--text-primary)' }}>

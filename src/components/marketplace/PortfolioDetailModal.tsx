@@ -6,8 +6,10 @@ import { ReportModal } from './ReportModal';
 interface PortfolioDetailModalProps {
   item: PortfolioItem | null;
   editor?: UserProfile | EditorCard | null;
+  isOpen?: boolean;
   onClose: () => void;
   onHireForSimilar?: (item: PortfolioItem) => void;
+  onHireClick?: () => void;
 }
 
 export const PortfolioDetailModal: React.FC<PortfolioDetailModalProps> = ({
@@ -15,6 +17,7 @@ export const PortfolioDetailModal: React.FC<PortfolioDetailModalProps> = ({
   editor,
   onClose,
   onHireForSimilar,
+  onHireClick,
 }) => {
   const [showReport, setShowReport] = useState(false);
 
@@ -149,7 +152,7 @@ export const PortfolioDetailModal: React.FC<PortfolioDetailModalProps> = ({
                     href={item.externalLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ fontSize: 13, color: '#818cf8', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    style={{ fontSize: 13, color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                   >
                     <span>Watch Full Reel</span>
                     <ExternalLink size={13} />
@@ -181,12 +184,16 @@ export const PortfolioDetailModal: React.FC<PortfolioDetailModalProps> = ({
             <button type="button" onClick={onClose} className="btn btn-secondary">
               Close
             </button>
-            {onHireForSimilar && editor && (
+            {(onHireForSimilar || onHireClick) && editor && (
               <button
                 type="button"
                 onClick={() => {
                   onClose();
-                  onHireForSimilar(item);
+                  if (onHireClick) {
+                    onHireClick();
+                  } else if (onHireForSimilar && item) {
+                    onHireForSimilar(item);
+                  }
                 }}
                 className="btn btn-primary"
                 style={{ display: 'flex', alignItems: 'center', gap: 6 }}

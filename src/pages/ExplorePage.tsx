@@ -72,12 +72,13 @@ export const ExplorePage: React.FC = () => {
 
       <main className="discovery-container">
         {/* Header Title */}
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 8 }}>
+        <div className="discovery-header">
+          <div className="section-kicker">TALENT ARCHIVE & DIRECTORY</div>
+          <h1 className="discovery-title">
             Find & Hire Video Editors & Creators
           </h1>
-          <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
-            Discover vetted specialists in narrative film, commercial ads, 3D motion, and color grading.
+          <p className="discovery-subtitle">
+            Curated roster of independent narrative film editors, commercial colorists, 3D motion designers, and sound artists.
           </p>
         </div>
 
@@ -178,7 +179,7 @@ export const ExplorePage: React.FC = () => {
               <button
                 type="button"
                 onClick={clearAllFilters}
-                style={{ background: 'transparent', border: 'none', color: '#818cf8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', textUnderlineOffset: 3, fontSize: 12.5, fontFamily: 'var(--font-mono)', cursor: 'pointer' }}
               >
                 Clear all filters
               </button>
@@ -314,7 +315,7 @@ export const ExplorePage: React.FC = () => {
                     {editor.startingPrice ? (
                       <span className="editor-card-price">${editor.startingPrice}</span>
                     ) : (
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#818cf8' }}>Custom Quote</span>
+                      <span className="editor-card-price" style={{ fontSize: 13 }}>Custom Quote</span>
                     )}
                   </div>
 

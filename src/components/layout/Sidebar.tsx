@@ -117,12 +117,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: user?.role === 'editor' ? '#c084fc' : user?.role === 'admin' ? '#fbbf24' : '#818cf8',
-                fontWeight: 700,
-                fontSize: 13,
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 600,
+                fontSize: 12.5,
                 outline: 'none',
                 cursor: 'pointer',
-                textTransform: 'capitalize',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
               }}
             >
               <option value="client" style={{ background: '#11131c', color: '#fff' }}>Client (Hiring)</option>

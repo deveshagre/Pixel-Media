@@ -41,14 +41,16 @@ export const OverviewSection: React.FC = () => {
             </h2>
             <span
               style={{
-                fontSize: 12,
-                padding: '3px 10px',
-                borderRadius: 'var(--radius-full)',
-                backgroundColor: isEditor ? 'rgba(168, 85, 247, 0.15)' : 'rgba(99, 102, 241, 0.15)',
-                color: isEditor ? '#c084fc' : '#818cf8',
-                fontWeight: 700,
+                fontSize: 11,
+                fontFamily: 'var(--font-mono)',
+                padding: '3px 8px',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: 'var(--bg-surface-elevated)',
+                border: '1px solid var(--border-default)',
+                color: 'var(--text-primary)',
+                fontWeight: 600,
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.06em',
               }}
             >
               {user?.role} Portal
@@ -198,7 +200,7 @@ export const OverviewSection: React.FC = () => {
             <div className="card-interactive" style={{ padding: '20px 22px', background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--border-subtle)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <span className="text-caption">Verified Editors Available</span>
-                <Search size={20} color="#818cf8" />
+                <Search size={18} color="var(--text-primary)" />
               </div>
               <div style={{ fontSize: 28, fontWeight: 800 }}>{editors.length}</div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
