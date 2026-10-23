@@ -1,0 +1,366 @@
+/* ============================================================
+   Pixel Pedia — Cinematic Studio-Logo Intro
+   ============================================================
+   Approx. 4-second reveal inspired by premium studio intros.
+   Palette: obsidian #09090b, warm white #f6f5f0, crimson #e24b4a
+   ============================================================ */
+
+/* --- Fullscreen overlay --- */
+.cinematic-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #09090b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade out phase */
+.cinematic-intro.fadeout,
+.cinematic-intro.skipping {
+  opacity: 0;
+}
+
+/* === Particle Field === */
+.intro-particle-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.intro-particle {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: rgba(246, 245, 240, 0.15);
+  opacity: 0;
+  animation: particleFadeIn 0.8s ease-out var(--delay) forwards,
+    particleDrift 3.5s ease-in-out var(--delay) infinite alternate;
+}
+
+.cinematic-intro.idle .intro-particle {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes particleFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes particleDrift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(var(--drift-x), var(--drift-y));
+  }
+}
+
+/* === Central Logo Group === */
+.intro-logo-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* === Monogram === */
+.intro-monogram {
+  width: 100px;
+  height: 100px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.6s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinematic-intro.monogram .intro-monogram,
+.cinematic-intro.wordmark .intro-monogram,
+.cinematic-intro.flourish .intro-monogram,
+.cinematic-intro.fadeout .intro-monogram {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.monogram-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* SVG stroke drawing animations */
+.mono-frame {
+  stroke-dasharray: 432;
+  stroke-dashoffset: 432;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cinematic-intro.monogram .mono-frame,
+.cinematic-intro.wordmark .mono-frame,
+.cinematic-intro.flourish .mono-frame,
+.cinematic-intro.fadeout .mono-frame {
+  stroke-dashoffset: 0;
+}
+
+.mono-letter {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  transition: stroke-dashoffset 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+}
+
+.cinematic-intro.monogram .mono-letter,
+.cinematic-intro.wordmark .mono-letter,
+.cinematic-intro.flourish .mono-letter,
+.cinematic-intro.fadeout .mono-letter {
+  stroke-dashoffset: 0;
+}
+
+.mono-accent-dot {
+  opacity: 0;
+  transform-origin: center;
+  transform: scale(0);
+  transition: opacity 0.4s ease-out 0.6s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s;
+}
+
+.cinematic-intro.monogram .mono-accent-dot,
+.cinematic-intro.wordmark .mono-accent-dot,
+.cinematic-intro.flourish .mono-accent-dot,
+.cinematic-intro.fadeout .mono-accent-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Corner marks */
+.mono-corner {
+  stroke-dasharray: 16;
+  stroke-dashoffset: 16;
+  transition: stroke-dashoffset 0.5s ease-out 0.3s;
+}
+
+.cinematic-intro.monogram .mono-corner,
+.cinematic-intro.wordmark .mono-corner,
+.cinematic-intro.flourish .mono-corner,
+.cinematic-intro.fadeout .mono-corner {
+  stroke-dashoffset: 0;
+}
+
+/* === Wordmark === */
+.intro-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinematic-intro.wordmark .intro-wordmark,
+.cinematic-intro.flourish .intro-wordmark,
+.cinematic-intro.fadeout .intro-wordmark {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wordmark-pixel,
+.wordmark-pedia {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #f6f5f0;
+  text-transform: uppercase;
+}
+
+.wordmark-separator {
+  display: block;
+  width: 1px;
+  height: 20px;
+  background: rgba(246, 245, 240, 0.3);
+}
+
+/* === Accent Underline === */
+.intro-accent-line {
+  width: 0;
+  height: 2px;
+  background: #e24b4a;
+  margin-top: 16px;
+  border-radius: 1px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinematic-intro.flourish .intro-accent-line,
+.cinematic-intro.fadeout .intro-accent-line {
+  width: 80px;
+}
+
+/* === Tagline === */
+.intro-tagline {
+  margin-top: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246, 245, 240, 0.4);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s ease-out 0.15s, transform 0.5s ease-out 0.15s;
+}
+
+.cinematic-intro.flourish .intro-tagline,
+.cinematic-intro.fadeout .intro-tagline {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* === Skip Button === */
+.intro-skip-btn {
+  position: absolute;
+  bottom: 36px;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(246, 245, 240, 0.12);
+  border-radius: 3px;
+  color: rgba(246, 245, 240, 0.4);
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  opacity: 0;
+  animation: skipFadeIn 0.5s ease-out 0.8s forwards;
+}
+
+.intro-skip-btn:hover {
+  color: rgba(246, 245, 240, 0.8);
+  border-color: rgba(246, 245, 240, 0.3);
+  background: rgba(246, 245, 240, 0.04);
+}
+
+.intro-skip-btn:focus-visible {
+  outline: 1px solid #f6f5f0;
+  outline-offset: 2px;
+}
+
+@keyframes skipFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.skip-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.skip-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  padding: 2px 6px;
+  background: rgba(246, 245, 240, 0.08);
+  border: 1px solid rgba(246, 245, 240, 0.12);
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* === Ambient glow behind monogram during flourish === */
+.cinematic-intro.flourish .intro-monogram::after,
+.cinematic-intro.fadeout .intro-monogram::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 160px;
+  height: 160px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(226, 75, 74, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: glowPulse 2s ease-in-out infinite;
+  z-index: -1;
+}
+
+.intro-monogram {
+  position: relative;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-intro {
+    display: none !important;
+  }
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .intro-monogram {
+    width: 72px;
+    height: 72px;
+  }
+
+  .wordmark-pixel,
+  .wordmark-pedia {
+    font-size: 20px;
+    letter-spacing: 0.16em;
+  }
+
+  .wordmark-separator {
+    height: 14px;
+  }
+
+  .intro-wordmark {
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .intro-accent-line {
+    margin-top: 12px;
+  }
+
+  .cinematic-intro.flourish .intro-accent-line,
+  .cinematic-intro.fadeout .intro-accent-line {
+    width: 56px;
+  }
+
+  .intro-tagline {
+    font-size: 9px;
+    margin-top: 10px;
+  }
+
+  .intro-skip-btn {
+    bottom: 24px;
+    right: 24px;
+  }
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
@@ -17,12 +17,37 @@ import { ExplorePage } from './pages/ExplorePage';
 import { EditorProfilePage } from './pages/EditorProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
+import { CinematicIntro, useCinematicIntro } from './components/cinematic/CinematicIntro';
 
 export const App: React.FC = () => {
+  const { showIntro, handleComplete } = useCinematicIntro();
+
+  // ESC key handler for skipping the intro
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showIntro) {
+        // Find and click the skip button to trigger the skip flow
+        const skipBtn = document.querySelector<HTMLButtonElement>('[data-testid="skip-intro-btn"]');
+        skipBtn?.click();
+      }
+    },
+    [showIntro]
+  );
+
+  useEffect(() => {
+    if (showIntro) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [showIntro, handleKeyDown]);
+
   return (
     <LanguageProvider>
       <AuthProvider>
         <ClientDataProvider>
+          {/* Cinematic studio-logo intro overlay */}
+          {showIntro && <CinematicIntro onComplete={handleComplete} />}
+
           <BrowserRouter>
             <Routes>
               {/* Public Marketplace Landing */}
