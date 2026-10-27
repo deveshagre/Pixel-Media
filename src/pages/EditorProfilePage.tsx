@@ -196,7 +196,7 @@ export const EditorProfilePage: React.FC = () => {
             </button>
 
             <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.4 }}>
-              Direct collaboration & milestone escrow protection
+              Direct collaboration & structured milestone agreements
             </div>
           </div>
         </div>

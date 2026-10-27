@@ -12,7 +12,7 @@ import { EditorPortfolioManager } from '../components/dashboard/EditorPortfolioM
 import { EditorProfileSettings } from '../components/dashboard/EditorProfileSettings';
 import { AdminModerationView } from '../components/dashboard/AdminModerationView';
 
-describe('Pixel Pedia — Freelancing Marketplace Comprehensive Workflows', () => {
+describe('Pixel Media — Freelancing Marketplace Comprehensive Workflows', () => {
   beforeEach(() => {
     localStorage.clear();
   });

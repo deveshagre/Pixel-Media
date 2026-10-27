@@ -17,6 +17,7 @@ import { ExplorePage } from './pages/ExplorePage';
 import { EditorProfilePage } from './pages/EditorProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
+import { ProjectWorkspaceView } from './pages/ProjectWorkspaceView';
 import { CinematicIntro, useCinematicIntro } from './components/cinematic/CinematicIntro';
 
 export const App: React.FC = () => {
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
                 <Route index element={<Navigate to="/dashboard/overview" replace />} />
                 <Route path="overview" element={<OverviewSection />} />
                 <Route path="requests" element={<MarketplaceRequestsView />} />
+                <Route path="workspace/:requestId" element={<ProjectWorkspaceView />} />
                 <Route path="portfolio" element={<EditorPortfolioManager />} />
                 <Route path="profile" element={<EditorProfileSettings />} />
                 <Route path="moderation" element={<AdminModerationView />} />

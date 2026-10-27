@@ -1,5 +1,5 @@
 // ============================================================
-// Pixel Pedia — Marketplace Type Definitions
+// Pixel Media — Marketplace Type Definitions
 // ============================================================
 
 export type SupportedLanguage = 'en' | 'hi' | 'de' | 'fr';
@@ -14,7 +14,14 @@ export type PortfolioStatus = 'draft' | 'published' | 'unpublished';
 
 export type MediaType = 'image' | 'video' | 'audio' | 'animation' | 'external_link';
 
-export type RequestStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'completed';
+export type RequestStatus =
+  | 'pending'
+  | 'quoted'
+  | 'accepted'
+  | 'in_progress'
+  | 'completed'
+  | 'declined'
+  | 'cancelled';
 
 export type ReportTargetType = 'portfolio_item' | 'profile' | 'project_request';
 
@@ -100,6 +107,34 @@ export interface PortfolioItem {
   updatedAt?: string;
 }
 
+// --- Milestone Agreement (Escrow & Payment Ready Structure) ---
+export interface MilestoneAgreement {
+  id: string;
+  title: string;
+  description?: string;
+  amount: number;
+  percentage?: number;
+  status: 'pending' | 'in_progress' | 'completed';
+  dueDate?: string;
+}
+
+// --- Project Proposal / Creator Quote ---
+export interface ProjectProposal {
+  id: string;
+  requestId: string;
+  editorId: string;
+  quotedPrice: number;
+  estimatedDelivery: string;
+  scopeSummary: string;
+  revisionsIncluded: number;
+  notes?: string;
+  deliverablesFormat?: string;
+  milestones: MilestoneAgreement[];
+  submittedAt: string;
+  clientFeedback?: string;
+  decidedAt?: string;
+}
+
 // --- Project Request ---
 export interface ProjectRequest {
   id: string;
@@ -117,11 +152,66 @@ export interface ProjectRequest {
   deadline?: string;
   additionalNotes?: string;
   status: RequestStatus;
+  proposal?: ProjectProposal;
+  finalDeliverablesUrl?: string;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
   // Joined data
   client?: UserProfile;
   editor?: UserProfile;
+}
+
+// --- Project Collaboration, Messaging & Creative Review ---
+export interface ProjectMessage {
+  id: string;
+  requestId: string;
+  senderId: string;
+  senderRole: 'client' | 'editor';
+  senderName?: string;
+  senderAvatarUrl?: string;
+  content: string;
+  readBy?: string[];
+  createdAt: string;
+}
+
+export type ReviewVersionStatus = 'pending_review' | 'changes_requested' | 'approved';
+
+export interface ReviewComment {
+  id: string;
+  versionId: string;
+  requestId: string;
+  authorId: string;
+  authorRole: 'client' | 'editor';
+  authorName?: string;
+  authorAvatarUrl?: string;
+  timestampSeconds?: number;
+  timestampDisplay?: string;
+  content: string;
+  resolved: boolean;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  replyContent?: string;
+  repliedAt?: string;
+  repliedBy?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ReviewVersion {
+  id: string;
+  requestId: string;
+  versionNumber: number;
+  title: string;
+  videoUrl: string;
+  notes?: string;
+  submittedBy: string;
+  submittedByName?: string;
+  status: ReviewVersionStatus;
+  createdAt: string;
+  updatedAt?: string;
+  commentsCount?: number;
+  unresolvedCommentsCount?: number;
 }
 
 // --- Report ---
@@ -163,6 +253,7 @@ export interface EditorSearchParams {
   availability?: Availability;
   minPrice?: number;
   maxPrice?: number;
+  priceTier?: 'all' | 'under_250' | '250_500' | '500_1000' | '1000_plus';
   software?: string;
   sortBy?: 'relevance' | 'price_low' | 'price_high' | 'newest';
   page?: number;

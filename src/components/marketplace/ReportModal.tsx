@@ -98,7 +98,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             </div>
             <h4 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Report Received</h4>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>
-              Thank you for keeping Pixel Pedia safe and honest. Our trust & safety team has queued this item for investigation.
+              Thank you for keeping Pixel Media safe and honest. Our trust & safety team has queued this item for investigation.
             </p>
             <button onClick={onClose} className="btn btn-secondary">
               Close

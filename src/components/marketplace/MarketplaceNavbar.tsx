@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clapperboard, Search, User, Globe, ArrowRight, RefreshCw } from 'lucide-react';
+import { Search, User, Globe, ArrowRight, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { SupportedLanguage } from '../../types';
+import logoImg from '../../assets/logo.png';
 
 export const MarketplaceNavbar: React.FC = () => {
   const { user, switchRole } = useAuth();
@@ -18,11 +19,13 @@ export const MarketplaceNavbar: React.FC = () => {
   return (
     <header className="marketplace-nav">
       {/* Brand Logo */}
-      <Link to="/" className="marketplace-logo">
-        <div className="marketplace-logo-icon">
-          <Clapperboard size={20} />
-        </div>
-        <span>Pixel Pedia</span>
+      <Link to="/" className="marketplace-logo" aria-label="Pixel Media Home">
+        <img
+          src={logoImg}
+          alt="Pixel Media"
+          className="marketplace-logo-img"
+        />
+        <span>Pixel Media</span>
       </Link>
 
       {/* Nav Links */}

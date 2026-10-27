@@ -1,5 +1,5 @@
 // ============================================================
-// Pixel Pedia — Marketplace Data Hooks
+// Pixel Media — Marketplace Data Hooks
 // Provides data access for categories, editors, portfolios, requests
 // Works with both Supabase and local demo mode
 // ============================================================
@@ -16,6 +16,8 @@ import {
   RequestStatus,
   EditorSearchParams,
   Report,
+  ProjectProposal,
+  MilestoneAgreement,
 } from '../types';
 import { DEFAULT_CATEGORIES, flattenCategories } from '../data/categories';
 import {
@@ -24,6 +26,31 @@ import {
   DEMO_EDITOR_SERVICES,
   DEMO_EDITOR_SOFTWARE,
 } from '../data/demoEditors';
+
+export function resolvePriceBounds(
+  minPrice?: number,
+  maxPrice?: number,
+  priceTier?: 'all' | 'under_250' | '250_500' | '500_1000' | '1000_plus'
+): { min?: number; max?: number } {
+  let min = minPrice;
+  let max = maxPrice;
+
+  if (priceTier && priceTier !== 'all') {
+    if (priceTier === 'under_250') {
+      max = max !== undefined ? Math.min(max, 250) : 250;
+    } else if (priceTier === '250_500') {
+      min = min !== undefined ? Math.max(min, 250) : 250;
+      max = max !== undefined ? Math.min(max, 500) : 500;
+    } else if (priceTier === '500_1000') {
+      min = min !== undefined ? Math.max(min, 500) : 500;
+      max = max !== undefined ? Math.min(max, 1000) : 1000;
+    } else if (priceTier === '1000_plus') {
+      min = min !== undefined ? Math.max(min, 1000) : 1000;
+    }
+  }
+
+  return { min, max };
+}
 
 // ---- Categories ----
 export function useCategories() {
@@ -101,11 +128,18 @@ export function useEditorDiscovery(params: EditorSearchParams) {
           if (params.availability) {
             query = query.eq('availability', params.availability);
           }
-          if (params.minPrice !== undefined) {
-            query = query.gte('starting_price', params.minPrice);
+
+          const { min: effectiveMinPrice, max: effectiveMaxPrice } = resolvePriceBounds(
+            params.minPrice,
+            params.maxPrice,
+            params.priceTier
+          );
+
+          if (effectiveMinPrice !== undefined) {
+            query = query.gte('starting_price', effectiveMinPrice);
           }
-          if (params.maxPrice !== undefined) {
-            query = query.lte('starting_price', params.maxPrice);
+          if (effectiveMaxPrice !== undefined) {
+            query = query.lte('starting_price', effectiveMaxPrice);
           }
           if (params.query) {
             query = query.or(`full_name.ilike.%${params.query}%,headline.ilike.%${params.query}%,bio.ilike.%${params.query}%`);
@@ -178,7 +212,7 @@ export function useEditorDiscovery(params: EditorSearchParams) {
       setLoading(false);
     }
     fetch();
-  }, [params.query, params.categorySlug, params.experienceLevel, params.availability, params.minPrice, params.maxPrice, params.sortBy, params.page, params.software]);
+  }, [params.query, params.categorySlug, params.experienceLevel, params.availability, params.minPrice, params.maxPrice, params.priceTier, params.sortBy, params.page, params.software]);
 
   return { editors, loading, total };
 }
@@ -204,11 +238,18 @@ function getLocalEditorCards(params: EditorSearchParams): EditorCard[] {
   if (params.availability) {
     filtered = filtered.filter((e) => e.availability === params.availability);
   }
-  if (params.minPrice !== undefined) {
-    filtered = filtered.filter((e) => (e.startingPrice || 0) >= params.minPrice!);
+
+  const { min: effectiveMinPrice, max: effectiveMaxPrice } = resolvePriceBounds(
+    params.minPrice,
+    params.maxPrice,
+    params.priceTier
+  );
+
+  if (effectiveMinPrice !== undefined) {
+    filtered = filtered.filter((e) => (e.startingPrice || 0) >= effectiveMinPrice);
   }
-  if (params.maxPrice !== undefined) {
-    filtered = filtered.filter((e) => (e.startingPrice || 0) <= params.maxPrice!);
+  if (effectiveMaxPrice !== undefined) {
+    filtered = filtered.filter((e) => (e.startingPrice || 0) <= effectiveMaxPrice);
   }
   if (params.categorySlug) {
     const cat = allCats.find((c) => c.slug === params.categorySlug);
@@ -384,8 +425,9 @@ export function usePortfolioManager() {
     }
 
     function loadLocal() {
-      const key = `pixel_pedia_portfolio_${user!.id}`;
-      const saved = localStorage.getItem(key);
+      const mediaKey = `pixel_media_portfolio_${user!.id}`;
+      const pediaKey = `pixel_pedia_portfolio_${user!.id}`;
+      const saved = localStorage.getItem(mediaKey) || localStorage.getItem(pediaKey);
       if (saved) {
         setItems(JSON.parse(saved));
       }
@@ -456,7 +498,7 @@ export function usePortfolioManager() {
       setItems((prev) => {
         const updated = isNew ? [...prev, record] : prev.map((i) => (i.id === id ? record : i));
         if (!isSupabaseConfigured) {
-          localStorage.setItem(`pixel_pedia_portfolio_${user.id}`, JSON.stringify(updated));
+          localStorage.setItem(`pixel_media_portfolio_${user.id}`, JSON.stringify(updated));
         }
         return updated;
       });
@@ -478,7 +520,7 @@ export function usePortfolioManager() {
       setItems((prev) => {
         const updated = prev.filter((i) => i.id !== id);
         if (!isSupabaseConfigured) {
-          localStorage.setItem(`pixel_pedia_portfolio_${user.id}`, JSON.stringify(updated));
+          localStorage.setItem(`pixel_media_portfolio_${user.id}`, JSON.stringify(updated));
         }
         return updated;
       });
@@ -487,6 +529,24 @@ export function usePortfolioManager() {
   );
 
   return { items, loading, saveItem, deleteItem, refresh: fetchItems };
+}
+
+function syncLocalRequestAcrossParties(updatedReq: ProjectRequest) {
+  const parties = [updatedReq.clientId, updatedReq.editorId];
+  parties.forEach((uid) => {
+    if (!uid) return;
+    const mediaKey = `pixel_media_requests_${uid}`;
+    const pediaKey = `pixel_pedia_requests_${uid}`;
+    const raw = localStorage.getItem(mediaKey) || localStorage.getItem(pediaKey);
+    let list: ProjectRequest[] = raw ? JSON.parse(raw) : [];
+    const idx = list.findIndex((r) => r.id === updatedReq.id);
+    if (idx >= 0) {
+      list[idx] = updatedReq;
+    } else {
+      list.unshift(updatedReq);
+    }
+    localStorage.setItem(mediaKey, JSON.stringify(list));
+  });
 }
 
 // ---- Project Requests ----
@@ -517,8 +577,9 @@ export function useProjectRequests() {
     }
 
     function loadLocal() {
-      const key = `pixel_pedia_requests_${user!.id}`;
-      const saved = localStorage.getItem(key);
+      const mediaKey = `pixel_media_requests_${user!.id}`;
+      const pediaKey = `pixel_pedia_requests_${user!.id}`;
+      const saved = localStorage.getItem(mediaKey) || localStorage.getItem(pediaKey);
       if (saved) {
         setRequests(JSON.parse(saved));
       }
@@ -583,12 +644,7 @@ export function useProjectRequests() {
       setRequests((prev) => {
         const updated = [record, ...prev];
         if (!isSupabaseConfigured) {
-          localStorage.setItem(`pixel_pedia_requests_${user.id}`, JSON.stringify(updated));
-          // Also store for the editor
-          const editorKey = `pixel_pedia_requests_${record.editorId}`;
-          const editorRequests = JSON.parse(localStorage.getItem(editorKey) || '[]');
-          editorRequests.unshift(record);
-          localStorage.setItem(editorKey, JSON.stringify(editorRequests));
+          syncLocalRequestAcrossParties(record);
         }
         return updated;
       });
@@ -602,20 +658,23 @@ export function useProjectRequests() {
     async (requestId: string, status: RequestStatus) => {
       if (!user) throw new Error('Not authenticated');
 
+      const now = new Date().toISOString();
+
       if (isSupabaseConfigured && supabase) {
         const { error } = await supabase
           .from('project_requests')
-          .update({ status, updated_at: new Date().toISOString() })
+          .update({ status, updated_at: now })
           .eq('id', requestId);
         if (error) throw new Error(error.message);
       }
 
       setRequests((prev) => {
         const updated = prev.map((r) =>
-          r.id === requestId ? { ...r, status, updatedAt: new Date().toISOString() } : r
+          r.id === requestId ? { ...r, status, updatedAt: now } : r
         );
-        if (!isSupabaseConfigured) {
-          localStorage.setItem(`pixel_pedia_requests_${user.id}`, JSON.stringify(updated));
+        const target = updated.find((r) => r.id === requestId);
+        if (target) {
+          syncLocalRequestAcrossParties(target);
         }
         return updated;
       });
@@ -623,7 +682,294 @@ export function useProjectRequests() {
     [user]
   );
 
-  return { requests, loading, submitRequest, updateRequestStatus, refresh: fetchRequests };
+  const submitProposal = useCallback(
+    async (
+      requestId: string,
+      proposalData: {
+        quotedPrice: number;
+        estimatedDelivery: string;
+        scopeSummary: string;
+        revisionsIncluded?: number;
+        deliverablesFormat?: string;
+        notes?: string;
+        milestones?: MilestoneAgreement[];
+      }
+    ): Promise<ProjectProposal> => {
+      if (!user) throw new Error('Not authenticated');
+
+      const now = new Date().toISOString();
+      const newProposal: ProjectProposal = {
+        id: `prop-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        requestId,
+        editorId: user.id,
+        quotedPrice: Number(proposalData.quotedPrice),
+        estimatedDelivery: proposalData.estimatedDelivery,
+        scopeSummary: proposalData.scopeSummary,
+        revisionsIncluded: proposalData.revisionsIncluded ?? 2,
+        notes: proposalData.notes || '',
+        deliverablesFormat: proposalData.deliverablesFormat || '',
+        milestones: proposalData.milestones || [],
+        submittedAt: now,
+      };
+
+      if (isSupabaseConfigured && supabase) {
+        const { error } = await supabase
+          .from('project_requests')
+          .update({
+            status: 'quoted',
+            proposal: newProposal,
+            updated_at: now,
+          })
+          .eq('id', requestId);
+        if (error) throw new Error(error.message);
+      }
+
+      setRequests((prev) => {
+        const updated = prev.map((r) => {
+          if (r.id === requestId) {
+            return {
+              ...r,
+              status: 'quoted' as RequestStatus,
+              proposal: newProposal,
+              updatedAt: now,
+            };
+          }
+          return r;
+        });
+
+        const target = updated.find((r) => r.id === requestId);
+        if (target) {
+          syncLocalRequestAcrossParties(target);
+        }
+
+        return updated;
+      });
+
+      return newProposal;
+    },
+    [user]
+  );
+
+  const acceptProposal = useCallback(
+    async (requestId: string): Promise<void> => {
+      if (!user) throw new Error('Not authenticated');
+
+      const now = new Date().toISOString();
+
+      if (isSupabaseConfigured && supabase) {
+        const { data: current } = await supabase
+          .from('project_requests')
+          .select('proposal')
+          .eq('id', requestId)
+          .single();
+
+        const updatedProposal = current?.proposal
+          ? { ...current.proposal, decidedAt: now, clientFeedback: 'Accepted' }
+          : undefined;
+
+        const { error } = await supabase
+          .from('project_requests')
+          .update({
+            status: 'accepted',
+            proposal: updatedProposal,
+            updated_at: now,
+          })
+          .eq('id', requestId);
+        if (error) throw new Error(error.message);
+      }
+
+      setRequests((prev) => {
+        const updated = prev.map((r) => {
+          if (r.id === requestId) {
+            const updatedProposal = r.proposal
+              ? { ...r.proposal, decidedAt: now, clientFeedback: 'Accepted' }
+              : undefined;
+            return {
+              ...r,
+              status: 'accepted' as RequestStatus,
+              proposal: updatedProposal,
+              updatedAt: now,
+            };
+          }
+          return r;
+        });
+
+        const target = updated.find((r) => r.id === requestId);
+        if (target) {
+          syncLocalRequestAcrossParties(target);
+        }
+
+        return updated;
+      });
+    },
+    [user]
+  );
+
+  const declineProposal = useCallback(
+    async (requestId: string, reason?: string): Promise<void> => {
+      if (!user) throw new Error('Not authenticated');
+
+      const now = new Date().toISOString();
+
+      if (isSupabaseConfigured && supabase) {
+        const { data: current } = await supabase
+          .from('project_requests')
+          .select('proposal')
+          .eq('id', requestId)
+          .single();
+
+        const updatedProposal = current?.proposal
+          ? { ...current.proposal, decidedAt: now, clientFeedback: reason || 'Declined' }
+          : undefined;
+
+        const { error } = await supabase
+          .from('project_requests')
+          .update({
+            status: 'declined',
+            proposal: updatedProposal,
+            updated_at: now,
+          })
+          .eq('id', requestId);
+        if (error) throw new Error(error.message);
+      }
+
+      setRequests((prev) => {
+        const updated = prev.map((r) => {
+          if (r.id === requestId) {
+            const updatedProposal = r.proposal
+              ? { ...r.proposal, decidedAt: now, clientFeedback: reason || 'Declined' }
+              : undefined;
+            return {
+              ...r,
+              status: 'declined' as RequestStatus,
+              proposal: updatedProposal,
+              updatedAt: now,
+            };
+          }
+          return r;
+        });
+
+        const target = updated.find((r) => r.id === requestId);
+        if (target) {
+          syncLocalRequestAcrossParties(target);
+        }
+
+        return updated;
+      });
+    },
+    [user]
+  );
+
+  const markInProgress = useCallback(
+    async (requestId: string): Promise<void> => {
+      if (!user) throw new Error('Not authenticated');
+
+      const now = new Date().toISOString();
+
+      if (isSupabaseConfigured && supabase) {
+        const { error } = await supabase
+          .from('project_requests')
+          .update({
+            status: 'in_progress',
+            updated_at: now,
+          })
+          .eq('id', requestId);
+        if (error) throw new Error(error.message);
+      }
+
+      setRequests((prev) => {
+        const updated = prev.map((r) =>
+          r.id === requestId ? { ...r, status: 'in_progress' as RequestStatus, updatedAt: now } : r
+        );
+        const target = updated.find((r) => r.id === requestId);
+        if (target) syncLocalRequestAcrossParties(target);
+        return updated;
+      });
+    },
+    [user]
+  );
+
+  const completeProject = useCallback(
+    async (requestId: string, deliverablesUrl?: string): Promise<void> => {
+      if (!user) throw new Error('Not authenticated');
+
+      const now = new Date().toISOString();
+
+      if (isSupabaseConfigured && supabase) {
+        const { error } = await supabase
+          .from('project_requests')
+          .update({
+            status: 'completed',
+            final_deliverables_url: deliverablesUrl,
+            completed_at: now,
+            updated_at: now,
+          })
+          .eq('id', requestId);
+        if (error) throw new Error(error.message);
+      }
+
+      setRequests((prev) => {
+        const updated = prev.map((r) =>
+          r.id === requestId
+            ? {
+                ...r,
+                status: 'completed' as RequestStatus,
+                finalDeliverablesUrl: deliverablesUrl,
+                completedAt: now,
+                updatedAt: now,
+              }
+            : r
+        );
+        const target = updated.find((r) => r.id === requestId);
+        if (target) syncLocalRequestAcrossParties(target);
+        return updated;
+      });
+    },
+    [user]
+  );
+
+  const cancelRequest = useCallback(
+    async (requestId: string): Promise<void> => {
+      if (!user) throw new Error('Not authenticated');
+
+      const now = new Date().toISOString();
+
+      if (isSupabaseConfigured && supabase) {
+        const { error } = await supabase
+          .from('project_requests')
+          .update({
+            status: 'cancelled',
+            updated_at: now,
+          })
+          .eq('id', requestId);
+        if (error) throw new Error(error.message);
+      }
+
+      setRequests((prev) => {
+        const updated = prev.map((r) =>
+          r.id === requestId ? { ...r, status: 'cancelled' as RequestStatus, updatedAt: now } : r
+        );
+        const target = updated.find((r) => r.id === requestId);
+        if (target) syncLocalRequestAcrossParties(target);
+        return updated;
+      });
+    },
+    [user]
+  );
+
+  return {
+    requests,
+    loading,
+    submitRequest,
+    updateRequestStatus,
+    submitProposal,
+    acceptProposal,
+    declineProposal,
+    markInProgress,
+    completeProject,
+    cancelRequest,
+    refresh: fetchRequests,
+  };
 }
 
 // ---- Reports ----
@@ -661,8 +1007,9 @@ export function useReports() {
     }
 
     function loadLocal() {
-      const key = 'pixel_pedia_reports';
-      const saved = localStorage.getItem(key);
+      const mediaKey = 'pixel_media_reports';
+      const pediaKey = 'pixel_pedia_reports';
+      const saved = localStorage.getItem(mediaKey) || localStorage.getItem(pediaKey);
       if (saved) {
         setReports(JSON.parse(saved));
       } else {
@@ -680,7 +1027,7 @@ export function useReports() {
           },
         ];
         setReports(demoReports);
-        localStorage.setItem(key, JSON.stringify(demoReports));
+        localStorage.setItem(mediaKey, JSON.stringify(demoReports));
       }
     }
 
@@ -719,7 +1066,7 @@ export function useReports() {
 
       setReports((prev) => {
         const updated = [newRecord, ...prev];
-        localStorage.setItem('pixel_pedia_reports', JSON.stringify(updated));
+        localStorage.setItem('pixel_media_reports', JSON.stringify(updated));
         return updated;
       });
     },
@@ -738,7 +1085,7 @@ export function useReports() {
 
       setReports((prev) => {
         const updated = prev.map((r) => (r.id === id ? { ...r, status, adminNotes, resolvedAt: new Date().toISOString() } : r));
-        localStorage.setItem('pixel_pedia_reports', JSON.stringify(updated));
+        localStorage.setItem('pixel_media_reports', JSON.stringify(updated));
         return updated;
       });
     },
@@ -786,6 +1133,9 @@ function mapRequestRow(row: Record<string, unknown>): ProjectRequest {
     deadline: row.deadline as string,
     additionalNotes: (row.additional_notes || row.additionalNotes) as string,
     status: row.status as RequestStatus,
+    proposal: row.proposal as ProjectProposal | undefined,
+    finalDeliverablesUrl: (row.final_deliverables_url || row.finalDeliverablesUrl) as string | undefined,
+    completedAt: (row.completed_at || row.completedAt) as string | undefined,
     createdAt: (row.created_at || row.createdAt) as string,
     updatedAt: (row.updated_at || row.updatedAt) as string,
     client: row.client as UserProfile,

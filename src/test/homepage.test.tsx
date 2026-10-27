@@ -8,7 +8,7 @@ import { ClientDataProvider } from '../context/ClientDataContext';
 import { HomePage } from '../pages/HomePage';
 import { ExplorePage } from '../pages/ExplorePage';
 
-describe('Pixel Pedia — Freelancing Marketplace Homepage & Discovery', () => {
+describe('Pixel Media — Freelancing Marketplace Homepage & Discovery', () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -27,7 +27,7 @@ describe('Pixel Pedia — Freelancing Marketplace Homepage & Discovery', () => {
     );
 
     // Marketplace Brand
-    expect(screen.getAllByText(/Pixel Pedia/i)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Pixel Media/i)[0]).toBeInTheDocument();
 
     // Primary Navigation
     expect(screen.getAllByRole('link', { name: /find editors/i })[0]).toBeInTheDocument();

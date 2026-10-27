@@ -1,5 +1,5 @@
 // ============================================================
-// Pixel Pedia — Demo Editors for Local Mode
+// Pixel Media — Demo Editors for Local Mode
 // Clearly labeled as demo content
 // ============================================================
 
@@ -9,7 +9,7 @@ import { DEFAULT_CATEGORIES, flattenCategories } from './categories';
 export const DEMO_EDITORS: UserProfile[] = [
   {
     id: 'demo-editor-01',
-    email: 'maya.chen@demo.pixelpedia.com',
+    email: 'maya.chen@demo.pixelmedia.com',
     fullName: 'Maya Chen',
     role: 'editor',
     headline: 'Cinematic Video Editor & Colorist',
@@ -28,7 +28,7 @@ export const DEMO_EDITORS: UserProfile[] = [
   },
   {
     id: 'demo-editor-02',
-    email: 'jake.morrison@demo.pixelpedia.com',
+    email: 'jake.morrison@demo.pixelmedia.com',
     fullName: 'Jake Morrison',
     role: 'editor',
     headline: 'Motion Graphics & VFX Artist',
@@ -46,7 +46,7 @@ export const DEMO_EDITORS: UserProfile[] = [
   },
   {
     id: 'demo-editor-03',
-    email: 'sarah.kim@demo.pixelpedia.com',
+    email: 'sarah.kim@demo.pixelmedia.com',
     fullName: 'Sarah Kim',
     role: 'editor',
     headline: 'Photo Retoucher & Color Specialist',
@@ -64,7 +64,7 @@ export const DEMO_EDITORS: UserProfile[] = [
   },
   {
     id: 'demo-editor-04',
-    email: 'carlos.ruiz@demo.pixelpedia.com',
+    email: 'carlos.ruiz@demo.pixelmedia.com',
     fullName: 'Carlos Ruiz',
     role: 'editor',
     headline: 'YouTube & Short-Form Content Editor',
@@ -82,7 +82,7 @@ export const DEMO_EDITORS: UserProfile[] = [
   },
   {
     id: 'demo-editor-05',
-    email: 'aria.patel@demo.pixelpedia.com',
+    email: 'aria.patel@demo.pixelmedia.com',
     fullName: 'Aria Patel',
     role: 'editor',
     headline: 'Podcast & Audio Production Specialist',
@@ -100,7 +100,7 @@ export const DEMO_EDITORS: UserProfile[] = [
   },
   {
     id: 'demo-editor-06',
-    email: 'liam.oconnor@demo.pixelpedia.com',
+    email: 'liam.oconnor@demo.pixelmedia.com',
     fullName: 'Liam O\'Connor',
     role: 'editor',
     headline: 'Graphic Designer & Brand Identity',

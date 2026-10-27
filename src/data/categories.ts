@@ -1,5 +1,5 @@
 // ============================================================
-// Pixel Pedia — Data-Driven Categories
+// Pixel Media — Data-Driven Categories
 // Used as fallback when Supabase is not configured
 // ============================================================
 

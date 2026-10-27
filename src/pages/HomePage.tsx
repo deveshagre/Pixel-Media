@@ -6,8 +6,8 @@ import {
   ArrowUpRight,
   MapPin,
   Clock,
-  Clapperboard,
 } from 'lucide-react';
+import logoImg from '../assets/logo.png';
 import { MarketplaceNavbar } from '../components/marketplace/MarketplaceNavbar';
 import { ProjectRequestModal } from '../components/marketplace/ProjectRequestModal';
 import { PortfolioDetailModal } from '../components/marketplace/PortfolioDetailModal';
@@ -68,6 +68,7 @@ export const HomePage: React.FC = () => {
       <section className="market-hero-editorial">
         <div>
           <div className="market-hero-meta-kicker">
+            <img src={logoImg} alt="" className="hero-kicker-emblem" aria-hidden="true" />
             <span className="kicker-dot" />
             <span>Curated Directory & Talent Marketplace</span>
             <span>/</span>
@@ -148,8 +149,8 @@ export const HomePage: React.FC = () => {
         <div className="trust-strip-item">
           <div className="trust-strip-index">03</div>
           <div>
-            <div className="trust-strip-title">Structured Milestone Escrow</div>
-            <div className="trust-strip-desc">Transparent scopes, clear review cycles, and secure fund protection.</div>
+            <div className="trust-strip-title">Structured Milestone Agreements</div>
+            <div className="trust-strip-desc">Transparent scopes, clear review cycles, and payment-ready contracts.</div>
           </div>
         </div>
       </div>
@@ -379,7 +380,7 @@ export const HomePage: React.FC = () => {
         <div className="workflow-header">
           <div>
             <div className="section-kicker">Protocol & Engagement</div>
-            <h2 className="section-editorial-title">How Pixel Pedia Works</h2>
+            <h2 className="section-editorial-title">How Pixel Media Works</h2>
           </div>
 
           {/* Toggle Role */}
@@ -465,7 +466,7 @@ export const HomePage: React.FC = () => {
               Ready to collaborate with exceptional editorial talent?
             </h2>
             <p className="cta-desc">
-              Whether you need a high-impact broadcast commercial cut, a cinematic documentary grade, or want to exhibit your talent as an editor, Pixel Pedia is your dedicated creative platform.
+              Whether you need a high-impact broadcast commercial cut, a cinematic documentary grade, or want to exhibit your talent as an editor, Pixel Media is your dedicated creative platform.
             </p>
           </div>
           <div className="cta-actions">
@@ -484,11 +485,13 @@ export const HomePage: React.FC = () => {
       <footer className="editorial-footer">
         <div className="footer-inner">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div className="marketplace-logo-mark">
-                <Clapperboard size={14} />
-              </div>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600 }}>Pixel Pedia</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <img
+                src={logoImg}
+                alt="Pixel Media"
+                className="footer-logo-img"
+              />
+              <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600 }}>Pixel Media</span>
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 300 }}>
               The curated talent directory and freelancing marketplace for video editors, colorists, sound designers, and motion directors.
@@ -525,7 +528,7 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className="footer-bottom-bar">
-          <div>© {new Date().getFullYear()} Pixel Pedia. Independent Creative Marketplace.</div>
+          <div>© {new Date().getFullYear()} Pixel Media. Independent Creative Marketplace.</div>
           <div>ISSUE NO. 04 / MONOCHROME EDITION</div>
         </div>
       </footer>

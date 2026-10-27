@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { SupportedLanguage } from '../types';
-import { Clapperboard, Globe, AlertCircle, Loader2 } from 'lucide-react';
+import { Globe, AlertCircle, Loader2 } from 'lucide-react';
+import logoImg from '../assets/logo.png';
 
 export const SignupPage: React.FC = () => {
   const { signup, loginWithGoogle } = useAuth();
@@ -71,9 +72,13 @@ export const SignupPage: React.FC = () => {
 
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo">
-            <Clapperboard size={22} />
-          </div>
+          <Link to="/" aria-label="Pixel Media Home">
+            <img
+              src={logoImg}
+              alt="Pixel Media"
+              className="auth-logo-img"
+            />
+          </Link>
           <h2 className="text-title-1" style={{ fontSize: 24, marginBottom: 6 }}>
             {t.auth.signupTitle}
           </h2>

@@ -1,4 +1,4 @@
-# Pixel Pedia — Freelancing Marketplace for Video Editors & Creators
+# Pixel Media — Freelancing Marketplace for Video Editors & Creators
 
 A production-grade, two-sided freelancing marketplace connecting clients (studios, creators, brands) with world-class video editors, colorists, sound designers, and motion graphics artists.
 
@@ -6,7 +6,7 @@ A production-grade, two-sided freelancing marketplace connecting clients (studio
 
 ## 🚀 Overview
 
-Pixel Pedia is a modern freelancing platform tailored for high-end post-production workflows:
+Pixel Media is a modern freelancing platform tailored for high-end post-production workflows:
 - **Clients** discover vetted editors by discipline and software, inspect verified showreels and deliverables, and send structured project briefs with milestones and budget ranges.
 - **Editors** build public portfolio showcases, set their starting rate cards and availability, manage incoming inquiries, and deliver master projects.
 - **Admins** manage content moderation, trust & safety reports, and category taxonomy.

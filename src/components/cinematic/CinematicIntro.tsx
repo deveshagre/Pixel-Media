@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './cinematic-intro.css';
+import logoImg from '../../assets/logo.png';
 
-const SESSION_KEY = 'pixel-pedia-intro-seen';
+const SESSION_KEY = 'pixel-media-intro-seen';
 const INTRO_DURATION = 4200; // ms — total animation length
 const SKIP_FADE_DURATION = 500; // ms — fade out when skipping
 
@@ -11,7 +12,7 @@ interface CinematicIntroProps {
 }
 
 /**
- * Cinematic studio-logo reveal for Pixel Pedia.
+ * Cinematic studio-logo reveal for Pixel Media.
  *
  * Plays once per browser session (sessionStorage). Respects
  * `prefers-reduced-motion` by skipping the animation entirely.
@@ -67,7 +68,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
     // Phase timeline:
     //   0ms      — idle → particles (particle field appears)
     //   400ms    — particles → monogram (P monogram draws in)
-    //   1600ms   — monogram → wordmark (PIXEL PEDIA text reveals)
+    //   1600ms   — monogram → wordmark (PIXEL MEDIA text reveals)
     //   2800ms   — wordmark → flourish (accent line + subtle glow)
     //   3500ms   — flourish → fadeout (entire intro fades out)
     //   4200ms   — fadeout → done (remove from DOM)
@@ -116,63 +117,28 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
 
       {/* Central logo group */}
       <div className="intro-logo-group">
-        {/* Geometric P Monogram */}
+        {/* Official Pixel Media Logo Emblem */}
         <div className="intro-monogram" data-testid="monogram">
-          <svg
-            viewBox="0 0 120 120"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="monogram-svg"
-          >
-            {/* Outer frame — geometric square with chamfered corner */}
-            <rect
-              className="mono-frame"
-              x="8"
-              y="8"
-              width="104"
-              height="104"
-              rx="4"
-              stroke="#f6f5f0"
-              strokeWidth="1.5"
-              fill="none"
-            />
-            {/* The letter P — constructed from geometric strokes */}
-            <path
-              className="mono-letter"
-              d="M38 90V30h24c13.255 0 24 10.745 24 22s-10.745 22-24 22H38"
-              stroke="#f6f5f0"
-              strokeWidth="3"
-              strokeLinecap="square"
-              fill="none"
-            />
-            {/* Inner accent dot — crimson */}
-            <circle
-              className="mono-accent-dot"
-              cx="62"
-              cy="52"
-              r="5"
-              fill="#e24b4a"
-            />
-            {/* Decorative corner marks */}
-            <line className="mono-corner tl-h" x1="8" y1="8" x2="24" y2="8" stroke="#f6f5f0" strokeWidth="1" />
-            <line className="mono-corner tl-v" x1="8" y1="8" x2="8" y2="24" stroke="#f6f5f0" strokeWidth="1" />
-            <line className="mono-corner br-h" x1="112" y1="112" x2="96" y2="112" stroke="#f6f5f0" strokeWidth="1" />
-            <line className="mono-corner br-v" x1="112" y1="112" x2="112" y2="96" stroke="#f6f5f0" strokeWidth="1" />
-          </svg>
+          <img
+            src={logoImg}
+            alt="Pixel Media"
+            className="intro-logo-artwork"
+            data-testid="intro-logo-img"
+          />
         </div>
 
         {/* Wordmark */}
         <div className="intro-wordmark" data-testid="wordmark">
           <span className="wordmark-pixel">PIXEL</span>
           <span className="wordmark-separator" />
-          <span className="wordmark-pedia">PEDIA</span>
+          <span className="wordmark-media">MEDIA</span>
         </div>
 
         {/* Accent underline */}
         <div className="intro-accent-line" />
 
         {/* Tagline */}
-        <div className="intro-tagline">Creative Talent Marketplace</div>
+        <div className="intro-tagline">A HOME FOR CREATIVE TALENT</div>
       </div>
 
       {/* Skip control */}

@@ -1,5 +1,5 @@
 /* ============================================================
-   Pixel Pedia — Cinematic Studio-Logo Intro
+   Pixel Media — Cinematic Studio-Logo Intro
    ============================================================
    Approx. 4-second reveal inspired by premium studio intros.
    Palette: obsidian #09090b, warm white #f6f5f0, crimson #e24b4a
@@ -80,13 +80,15 @@
   z-index: 2;
 }
 
-/* === Monogram === */
+/* === Official Logo Artwork / Emblem === */
 .intro-monogram {
-  width: 100px;
-  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 0.6s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.88);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cinematic-intro.monogram .intro-monogram,
@@ -95,6 +97,15 @@
 .cinematic-intro.fadeout .intro-monogram {
   opacity: 1;
   transform: scale(1);
+}
+
+.intro-logo-artwork {
+  width: 280px;
+  max-width: 80vw;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 35px rgba(226, 75, 74, 0.15));
 }
 
 .monogram-svg {
@@ -177,7 +188,7 @@
 }
 
 .wordmark-pixel,
-.wordmark-pedia {
+.wordmark-media {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 28px;
   font-weight: 600;
@@ -291,10 +302,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 160px;
-  height: 160px;
+  width: 280px;
+  height: 280px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(226, 75, 74, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(226, 75, 74, 0.14) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: glowPulse 2s ease-in-out infinite;
@@ -325,13 +336,13 @@
 
 /* === Responsive === */
 @media (max-width: 600px) {
-  .intro-monogram {
-    width: 72px;
-    height: 72px;
+  .intro-logo-artwork {
+    width: 200px;
+    max-width: 82vw;
   }
 
   .wordmark-pixel,
-  .wordmark-pedia {
+  .wordmark-media {
     font-size: 20px;
     letter-spacing: 0.16em;
   }

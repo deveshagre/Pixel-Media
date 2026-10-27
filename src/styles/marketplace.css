@@ -1,5 +1,5 @@
 /* ============================================================
-   PIXEL PEDIA — DISTINCTIVE ART DIRECTION & EDITORIAL SYSTEM
+   PIXEL MEDIA — DISTINCTIVE ART DIRECTION & EDITORIAL SYSTEM
    Restrained monochrome foundation • Editorial serif display • 
    Technical monospace metadata • Portfolio-first showcase
    ============================================================ */
@@ -45,6 +45,52 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.05em;
+}
+
+.marketplace-logo-img {
+  height: 34px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  display: block;
+  transition: opacity var(--transition-fast);
+}
+
+.marketplace-logo:hover .marketplace-logo-img {
+  opacity: 0.9;
+}
+
+.hero-kicker-emblem {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.footer-logo-img {
+  height: 30px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  display: block;
+}
+
+.sidebar-logo-img {
+  height: 26px;
+  width: auto;
+  max-width: 110px;
+  object-fit: contain;
+  display: block;
+}
+
+.auth-logo-img {
+  height: 44px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  display: block;
 }
 
 .marketplace-logo-icon {
@@ -1169,6 +1215,24 @@
   background: rgba(246, 245, 240, 0.1);
   color: #f6f5f0;
   border: 1px solid rgba(246, 245, 240, 0.25);
+}
+
+.status-badge.quoted {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.28);
+}
+
+.status-badge.in_progress {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.28);
+}
+
+.status-badge.cancelled {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.28);
 }
 
 /* Responsive Overrides */

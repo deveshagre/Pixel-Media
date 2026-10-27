@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 import { CinematicIntro, useCinematicIntro } from '../components/cinematic/CinematicIntro';
 
@@ -20,7 +20,7 @@ function HookHarness() {
   );
 }
 
-describe('Cinematic Intro', () => {
+describe('Cinematic Intro — Pixel Media', () => {
   beforeEach(() => {
     sessionStorage.clear();
     vi.useFakeTimers();
@@ -45,11 +45,15 @@ describe('Cinematic Intro', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the intro overlay on first visit', () => {
+  it('renders the intro overlay on first visit with PIXEL MEDIA wordmark and tagline', () => {
     renderIntro();
     expect(screen.getByTestId('cinematic-intro')).toBeInTheDocument();
     expect(screen.getByTestId('monogram')).toBeInTheDocument();
+    expect(screen.getByTestId('intro-logo-img')).toBeInTheDocument();
     expect(screen.getByTestId('wordmark')).toBeInTheDocument();
+    expect(screen.getByText('PIXEL')).toBeInTheDocument();
+    expect(screen.getByText('MEDIA')).toBeInTheDocument();
+    expect(screen.getByText('A HOME FOR CREATIVE TALENT')).toBeInTheDocument();
     expect(screen.getByTestId('skip-intro-btn')).toBeInTheDocument();
   });
 
@@ -66,11 +70,11 @@ describe('Cinematic Intro', () => {
     });
 
     expect(onComplete).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem('pixel-pedia-intro-seen')).toBe('1');
+    expect(sessionStorage.getItem('pixel-media-intro-seen')).toBe('1');
   });
 
   it('suppresses replay on the same session (sessionStorage)', () => {
-    sessionStorage.setItem('pixel-pedia-intro-seen', '1');
+    sessionStorage.setItem('pixel-media-intro-seen', '1');
     const onComplete = vi.fn();
     renderIntro(onComplete);
 
@@ -91,7 +95,7 @@ describe('Cinematic Intro', () => {
     });
 
     expect(onComplete).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem('pixel-pedia-intro-seen')).toBe('1');
+    expect(sessionStorage.getItem('pixel-media-intro-seen')).toBe('1');
   });
 
   it('respects prefers-reduced-motion and does not show intro', () => {
@@ -115,7 +119,7 @@ describe('Cinematic Intro', () => {
 
     // Should immediately complete
     expect(onComplete).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem('pixel-pedia-intro-seen')).toBe('1');
+    expect(sessionStorage.getItem('pixel-media-intro-seen')).toBe('1');
   });
 
   it('renders particle field with 24 particles', () => {
@@ -132,7 +136,7 @@ describe('Cinematic Intro', () => {
   });
 
   it('useCinematicIntro hook returns showIntro=false after session replay', () => {
-    sessionStorage.setItem('pixel-pedia-intro-seen', '1');
+    sessionStorage.setItem('pixel-media-intro-seen', '1');
     render(<HookHarness />);
     expect(screen.getByTestId('show-intro').textContent).toBe('false');
     expect(screen.queryByTestId('cinematic-intro')).not.toBeInTheDocument();

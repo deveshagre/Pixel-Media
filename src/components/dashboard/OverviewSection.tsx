@@ -271,9 +271,15 @@ export const OverviewSection: React.FC = () => {
                       ${req.budgetMin} {req.budgetMax ? `– $${req.budgetMax}` : ''}
                     </div>
                   )}
-                  <Link to="/dashboard/requests" className="btn btn-secondary btn-sm">
-                    Details
-                  </Link>
+                  {(req.status === 'accepted' || req.status === 'in_progress' || req.status === 'completed') ? (
+                    <Link to={`/dashboard/workspace/${req.id}`} className="btn btn-primary btn-sm">
+                      Workspace
+                    </Link>
+                  ) : (
+                    <Link to="/dashboard/requests" className="btn btn-secondary btn-sm">
+                      Details
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}

@@ -12,9 +12,9 @@ import {
   Eye,
   LogOut,
   X,
-  Clapperboard,
   RefreshCw,
 } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { UserRole } from '../../types';
@@ -79,11 +79,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       {mobileOpen && <div className="sidebar-backdrop" onClick={onCloseMobile} />}
       <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
-          <Link to="/" className="logo-badge" style={{ textDecoration: 'none' }}>
-            <div className="logo-icon-wrapper">
-              <Clapperboard size={18} />
-            </div>
-            <span>Pixel Pedia</span>
+          <Link to="/" className="logo-badge" style={{ textDecoration: 'none' }} aria-label="Pixel Media Home">
+            <img
+              src={logoImg}
+              alt="Pixel Media"
+              className="sidebar-logo-img"
+            />
+            <span>Pixel Media</span>
           </Link>
           <button
             onClick={onCloseMobile}

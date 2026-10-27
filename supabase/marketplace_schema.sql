@@ -1,5 +1,5 @@
 -- ============================================================
--- Pixel Pedia — Freelancing Marketplace Schema Migration
+-- Pixel Media — Freelancing Marketplace Schema Migration
 -- Run AFTER the existing schema.sql
 -- ============================================================
 
@@ -187,8 +187,11 @@ CREATE TABLE IF NOT EXISTS public.project_requests (
   deadline TIMESTAMPTZ,
   additional_notes TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN (
-    'pending', 'accepted', 'declined', 'cancelled', 'completed'
+    'pending', 'quoted', 'accepted', 'in_progress', 'completed', 'declined', 'cancelled'
   )),
+  proposal JSONB,
+  final_deliverables_url TEXT,
+  completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -267,7 +270,7 @@ CREATE POLICY "Admins can manage settings"
 
 -- Seed default settings
 INSERT INTO public.admin_settings (key, value) VALUES
-  ('learning_url', '"https://pixelpedia.com/learn"'),
+  ('learning_url', '"https://pixelmedia.com/learn"'),
   ('featured_editors_count', '6'),
   ('max_portfolio_items', '20')
 ON CONFLICT (key) DO NOTHING;

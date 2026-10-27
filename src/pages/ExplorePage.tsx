@@ -23,6 +23,7 @@ export const ExplorePage: React.FC = () => {
   const currentSw = searchParams.get('software') || '';
   const currentExp = (searchParams.get('level') as ExperienceLevel) || '';
   const currentAvail = (searchParams.get('avail') as Availability) || '';
+  const currentPriceTier = (searchParams.get('price') as 'all' | 'under_250' | '250_500' | '500_1000' | '1000_plus') || 'all';
   const currentSort = (searchParams.get('sort') as 'relevance' | 'price_low' | 'price_high') || 'relevance';
 
   const [queryInput, setQueryInput] = useState(currentQuery);
@@ -34,6 +35,7 @@ export const ExplorePage: React.FC = () => {
     software: currentSw || undefined,
     experienceLevel: currentExp || undefined,
     availability: currentAvail || undefined,
+    priceTier: currentPriceTier !== 'all' ? currentPriceTier : undefined,
     sortBy: currentSort,
   });
 
@@ -64,7 +66,14 @@ export const ExplorePage: React.FC = () => {
     setQueryInput('');
   };
 
-  const hasActiveFilters = Boolean(currentQuery || currentCatSlug || currentSw || currentExp || currentAvail);
+  const hasActiveFilters = Boolean(
+    currentQuery ||
+    currentCatSlug ||
+    currentSw ||
+    currentExp ||
+    currentAvail ||
+    (currentPriceTier && currentPriceTier !== 'all')
+  );
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
@@ -138,6 +147,20 @@ export const ExplorePage: React.FC = () => {
               <option value="">Any Availability</option>
               <option value="available">Available Now</option>
               <option value="busy">Busy (Accepting Next Week)</option>
+            </select>
+
+            {/* Price Tier */}
+            <select
+              className="filter-dropdown-select"
+              value={currentPriceTier}
+              onChange={(e) => updateParam('price', e.target.value === 'all' ? '' : e.target.value)}
+              aria-label="Filter by starting rate"
+            >
+              <option value="all">Any Starting Rate</option>
+              <option value="under_250">Under $250</option>
+              <option value="250_500">$250 – $500</option>
+              <option value="500_1000">$500 – $1,000</option>
+              <option value="1000_plus">$1,000+</option>
             </select>
 
             {/* Sort */}
