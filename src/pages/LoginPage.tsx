@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { SupportedLanguage } from '../types';
@@ -11,13 +11,16 @@ export const LoginPage: React.FC = () => {
   const { t, language, setLanguage, supportedLanguages } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const roleParam = searchParams.get('role');
+  const defaultDestination = roleParam === 'editor' ? '/dashboard/requests' : '/dashboard/overview';
+  const from = (location.state as any)?.from?.pathname || defaultDestination;
 
   const [email, setEmail] = useState('producer@pixelmedia.studio');
   const [password, setPassword] = useState('creative2026');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const from = (location.state as any)?.from?.pathname || '/dashboard/overview';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,7 +215,7 @@ export const LoginPage: React.FC = () => {
         >
           <span>{t.auth.noAccount} </span>
           <Link
-            to="/signup"
+            to={roleParam ? `/signup?role=${roleParam}` : '/signup'}
             style={{ color: 'var(--primary)', fontWeight: 600 }}
           >
             {t.auth.signUpLink}

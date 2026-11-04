@@ -438,7 +438,7 @@ export const ProjectReviewWorkspace: React.FC<ProjectReviewWorkspaceProps> = ({
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Clock size={16} style={{ color: 'var(--accent-crimson)' }} />
+                <Clock size={16} style={{ color: 'var(--accent-lavender)' }} />
                 <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                   Timecoded Review Feedback
                 </h4>
@@ -477,8 +477,8 @@ export const ProjectReviewWorkspace: React.FC<ProjectReviewWorkspaceProps> = ({
                             style={{
                               padding: '2px 8px',
                               borderRadius: 4,
-                              background: 'rgba(226, 75, 74, 0.15)',
-                              color: 'var(--accent-crimson)',
+                              background: 'rgba(139, 92, 246, 0.15)',
+                              color: 'var(--accent-lavender)',
                               fontFamily: 'var(--font-mono)',
                               fontSize: 12,
                               fontWeight: 600,
@@ -534,7 +534,7 @@ export const ProjectReviewWorkspace: React.FC<ProjectReviewWorkspaceProps> = ({
                           padding: '10px 14px',
                           background: 'rgba(255, 255, 255, 0.03)',
                           borderRadius: 8,
-                          borderLeft: '2px solid var(--accent-crimson)',
+                          borderLeft: '2px solid var(--accent-lavender)',
                           display: 'flex',
                           flexDirection: 'column',
                           gap: 4,

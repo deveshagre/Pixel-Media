@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import { resolvePriceBounds } from '../hooks/useMarketplace';
 import { ProjectProposalModal } from '../components/marketplace/ProjectProposalModal';
 import { ProjectRequest } from '../types';

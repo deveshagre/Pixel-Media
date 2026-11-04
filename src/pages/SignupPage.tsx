@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { SupportedLanguage } from '../types';
@@ -10,8 +10,18 @@ export const SignupPage: React.FC = () => {
   const { signup, loginWithGoogle } = useAuth();
   const { t, language, setLanguage, supportedLanguages } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [role, setRole] = useState<'client' | 'editor'>('client');
+  const roleParam = searchParams.get('role');
+  const validatedInitialRole: 'client' | 'editor' = roleParam === 'editor' ? 'editor' : 'client';
+  const [role, setRole] = useState<'client' | 'editor'>(validatedInitialRole);
+
+  useEffect(() => {
+    if (roleParam === 'editor' || roleParam === 'client') {
+      setRole(roleParam);
+    }
+  }, [roleParam]);
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
@@ -33,7 +43,8 @@ export const SignupPage: React.FC = () => {
     setLoading(false);
 
     if (res.success) {
-      navigate('/dashboard/overview', { replace: true });
+      const destination = role === 'editor' ? '/dashboard/requests' : '/dashboard/overview';
+      navigate(destination, { replace: true });
     } else {
       setError(res.error || 'Failed to create account.');
     }
@@ -275,7 +286,7 @@ export const SignupPage: React.FC = () => {
         >
           <span>{t.auth.haveAccount} </span>
           <Link
-            to="/login"
+            to={role ? `/login?role=${role}` : '/login'}
             style={{ color: 'var(--primary)', fontWeight: 600 }}
           >
             {t.auth.logInLink}

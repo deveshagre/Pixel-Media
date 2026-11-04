@@ -174,9 +174,9 @@ export const MediaPanel: React.FC = () => {
         onDrop={handleDrop}
       >
         {importing ? (
-          <span style={{ fontSize: 12, color: '#e4b363' }}>Processing media...</span>
+          <span style={{ fontSize: 12, color: 'var(--nle-accent-violet)' }}>Processing media...</span>
         ) : (
-          <span style={{ fontSize: 11, color: '#71717a' }}>
+          <span style={{ fontSize: 11, color: 'var(--nle-text-muted)' }}>
             Drag & drop media files here or click Import
           </span>
         )}
@@ -188,7 +188,7 @@ export const MediaPanel: React.FC = () => {
           <div className="nle-empty-assets">
             <Layers size={28} style={{ opacity: 0.3, marginBottom: 8 }} />
             <p>No media assets found.</p>
-            <span style={{ fontSize: 11, color: '#71717a' }}>
+            <span style={{ fontSize: 11, color: 'var(--nle-text-muted)' }}>
               Import footage, music or still graphics to begin.
             </span>
           </div>

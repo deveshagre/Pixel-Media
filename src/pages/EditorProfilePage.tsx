@@ -8,6 +8,7 @@ import {
   Wrench,
   Sparkles,
   Flag,
+  MessageSquare,
 } from 'lucide-react';
 import { MarketplaceNavbar } from '../components/marketplace/MarketplaceNavbar';
 import { ProjectRequestModal } from '../components/marketplace/ProjectRequestModal';
@@ -195,8 +196,17 @@ export const EditorProfilePage: React.FC = () => {
               <ArrowUpRight size={18} />
             </button>
 
+            <Link
+              to="/dashboard/messages"
+              className="btn btn-secondary"
+              style={{ width: '100%', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 13 }}
+            >
+              <MessageSquare size={15} style={{ color: 'var(--accent-lavender)' }} />
+              <span>Project Messages</span>
+            </Link>
+
             <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.4 }}>
-              Direct collaboration & structured milestone agreements
+              Direct collaboration & direct client-creator payments
             </div>
           </div>
         </div>

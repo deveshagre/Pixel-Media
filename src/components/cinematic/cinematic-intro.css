@@ -2,7 +2,7 @@
    Pixel Media — Cinematic Studio-Logo Intro
    ============================================================
    Approx. 4-second reveal inspired by premium studio intros.
-   Palette: obsidian #09090b, warm white #f6f5f0, crimson #e24b4a
+   Palette: deep violet #111019, soft lavender #c4a8ff
    ============================================================ */
 
 /* --- Fullscreen overlay --- */
@@ -105,7 +105,7 @@
   height: auto;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 35px rgba(226, 75, 74, 0.15));
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 35px rgba(139, 92, 246, 0.2));
 }
 
 .monogram-svg {
@@ -208,7 +208,7 @@
 .intro-accent-line {
   width: 0;
   height: 2px;
-  background: #e24b4a;
+  background: #8b5cf6;
   margin-top: 16px;
   border-radius: 1px;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -305,7 +305,7 @@
   width: 280px;
   height: 280px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(226, 75, 74, 0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: glowPulse 2s ease-in-out infinite;

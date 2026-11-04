@@ -15,6 +15,7 @@ import {
   Check,
   Sparkles,
   Video,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProjectRequests } from '../../hooks/useMarketplace';
@@ -310,14 +311,25 @@ export const MarketplaceRequestsView: React.FC = () => {
                   </button>
 
                   {(req.status === 'accepted' || req.status === 'in_progress' || req.status === 'completed') && (
-                    <Link
-                      to={`/dashboard/workspace/${req.id}`}
-                      className="btn btn-secondary btn-sm"
-                      style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--text-primary)' }}
-                    >
-                      <Video size={14} />
-                      <span>Workspace & Review</span>
-                    </Link>
+                    <>
+                      <Link
+                        to={`/dashboard/workspace/${req.id}`}
+                        className="btn btn-secondary btn-sm"
+                        style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--text-primary)' }}
+                      >
+                        <Video size={14} />
+                        <span>Workspace</span>
+                      </Link>
+                      <Link
+                        to={`/dashboard/workspace/${req.id}?tab=messages`}
+                        className="btn btn-secondary btn-sm"
+                        style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--text-primary)' }}
+                        title="Direct chat and calls"
+                      >
+                        <MessageSquare size={14} style={{ color: 'var(--accent-lavender)' }} />
+                        <span>Chat & Calls</span>
+                      </Link>
+                    </>
                   )}
 
                   {/* Actions for Editor */}
@@ -750,7 +762,7 @@ export const MarketplaceRequestsView: React.FC = () => {
                     href={selectedRequest.finalDeliverablesUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ fontSize: 14, color: 'var(--accent-crimson)', textDecoration: 'underline', textUnderlineOffset: 3, display: 'flex', alignItems: 'center', gap: 4 }}
+                    style={{ fontSize: 14, color: 'var(--accent-lavender)', textDecoration: 'underline', textUnderlineOffset: 3, display: 'flex', alignItems: 'center', gap: 4 }}
                   >
                     <ExternalLink size={14} />
                     <span>{selectedRequest.finalDeliverablesUrl}</span>

@@ -11,11 +11,18 @@ import {
   Lock,
   ExternalLink,
   Layers,
+  CreditCard,
+  Eye,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProjectCollaboration } from '../hooks/useProjectCollaboration';
+import { useBilling } from '../hooks/useBilling';
+import { InvoiceViewModal } from '../components/billing/InvoiceViewModal';
+import { formatMinorUnits } from '../types/billing';
 import { ProjectReviewWorkspace } from '../components/workspace/ProjectReviewWorkspace';
 import { ProjectMessagesThread } from '../components/workspace/ProjectMessagesThread';
+import { useProjectCalls } from '../hooks/useProjectCalls';
+import { CallInterfaceModal } from '../components/workspace/CallInterfaceModal';
 
 export const ProjectWorkspaceView: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
@@ -43,7 +50,40 @@ export const ProjectWorkspaceView: React.FC = () => {
     replyToReviewComment,
   } = useProjectCollaboration(requestId);
 
-  const [activeTab, setActiveTab] = useState<'review' | 'messages' | 'brief'>('review');
+  const { getInvoiceByRequestId } = useBilling();
+  const invoice = requestId ? getInvoiceByRequestId(requestId) : undefined;
+
+  const [activeTab, setActiveTab] = useState<'review' | 'messages' | 'brief' | 'invoices'>('review');
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+
+  // Participant details for calling
+  const recipientId = userRoleOnProject === 'client' ? request?.editorId : request?.clientId;
+  const recipientName = userRoleOnProject === 'client' 
+    ? (request?.editor?.fullName || 'Lead Creator') 
+    : (request?.client?.fullName || 'Client');
+
+  const {
+    callStatus,
+    activeCallSession,
+    incomingInvitation,
+    isMuted,
+    isCameraOff,
+    callDurationSec,
+    callError,
+    participants: callParticipants,
+    dailyCall,
+    startCall,
+    acceptInvitation,
+    declineInvitation,
+    toggleMute,
+    toggleCamera,
+    endCall,
+    clearError: clearCallError,
+  } = useProjectCalls({
+    projectId: requestId || '',
+    recipientId,
+    recipientName,
+  });
 
   // When switching to messages tab, automatically mark unread messages as read
   useEffect(() => {
@@ -101,7 +141,7 @@ export const ProjectWorkspaceView: React.FC = () => {
           margin: '40px auto',
         }}
       >
-        <Lock size={40} style={{ color: 'var(--accent-crimson)', margin: '0 auto 12px' }} />
+        <Lock size={40} style={{ color: 'var(--accent-lavender)', margin: '0 auto 12px' }} />
         <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
           Access Restricted
         </h3>
@@ -261,7 +301,7 @@ export const ProjectWorkspaceView: React.FC = () => {
               style={{
                 fontFamily: 'var(--font-mono)',
                 textTransform: 'uppercase',
-                color: userRoleOnProject === 'client' ? '#60a5fa' : 'var(--accent-crimson)',
+                color: userRoleOnProject === 'client' ? '#60a5fa' : 'var(--accent-lavender)',
                 fontWeight: 600,
               }}
             >
@@ -342,7 +382,7 @@ export const ProjectWorkspaceView: React.FC = () => {
                     padding: '1px 6px',
                     borderRadius: 10,
                     fontSize: 10,
-                    background: 'var(--accent-crimson)',
+                    background: 'var(--accent-lavender)',
                     color: '#ffffff',
                     fontFamily: 'var(--font-mono)',
                   }}
@@ -385,6 +425,31 @@ export const ProjectWorkspaceView: React.FC = () => {
               <FileText size={14} />
               <span>Scope & Milestones</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('invoices')}
+              className={`filter-tab ${activeTab === 'invoices' ? 'active' : ''}`}
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <CreditCard size={14} />
+              <span>Invoices & Milestones</span>
+              {invoice && invoice.status !== 'paid' && (
+                <span
+                  style={{
+                    padding: '1px 6px',
+                    borderRadius: 10,
+                    fontSize: 10,
+                    background: '#fbbf24',
+                    color: '#09090b',
+                    fontFamily: 'var(--font-mono)',
+                    fontWeight: 700,
+                  }}
+                >
+                  ACTIVE
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Tab 1: Video Review & Timecodes */}
@@ -412,6 +477,12 @@ export const ProjectWorkspaceView: React.FC = () => {
                 onSendMessage={sendMessage}
                 currentUserId={user?.id || ''}
                 disabled={isDeclinedOrCancelled}
+                recipientName={recipientName}
+                onStartVoiceCall={() => startCall('voice')}
+                onStartVideoCall={() => startCall('video')}
+                incomingCall={incomingInvitation}
+                onAcceptCall={acceptInvitation}
+                onDeclineCall={declineInvitation}
               />
             </div>
           )}
@@ -483,8 +554,207 @@ export const ProjectWorkspaceView: React.FC = () => {
               )}
             </div>
           )}
+
+          {/* Tab 4: Invoices & Milestone Payment Ledger */}
+          {activeTab === 'invoices' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {invoice ? (
+                <>
+                  {/* Summary & Overview Card */}
+                  <div
+                    style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 14,
+                      padding: 24,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 16,
+                    }}
+                  >
+                    <div>
+                      <div className="section-kicker" style={{ fontSize: 11, marginBottom: 2 }}>
+                        COMMERCIAL CONTRACT & INVOICE
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <h3 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'var(--font-mono)', margin: 0, color: 'var(--text-primary)' }}>
+                          {invoice.invoiceNumber}
+                        </h3>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontFamily: 'var(--font-mono)',
+                            padding: '3px 8px',
+                            borderRadius: 4,
+                            textTransform: 'uppercase',
+                            fontWeight: 600,
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            color: 'var(--text-secondary)',
+                            border: '1px solid var(--border-subtle)',
+                          }}
+                        >
+                          DOCUMENT FOR RECORDS ONLY
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+                        Total Agreed Value: <strong>{formatMinorUnits(invoice.totalMinor, invoice.currency)}</strong>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsInvoiceModalOpen(true)}
+                      className="btn btn-primary btn-sm"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                    >
+                      <Eye size={14} />
+                      <span>View & Print Invoice (Record Only)</span>
+                    </button>
+                  </div>
+
+                  {/* Standard Direct Payment Note */}
+                  <div
+                    style={{
+                      padding: '14px 18px',
+                      borderRadius: 10,
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid var(--border-subtle)',
+                      marginBottom: 20,
+                      fontSize: 13,
+                      color: 'var(--text-secondary)',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Clients and editors arrange payments directly between themselves, outside Pixel Media. Pixel Media does not process or track payments.
+                  </div>
+
+                  {/* Milestones Schedule */}
+                  <div
+                    style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 14,
+                      padding: 24,
+                    }}
+                  >
+                    <div style={{ marginBottom: 16 }}>
+                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                        Agreed Project Deliverables & Milestones
+                      </h4>
+                      <p style={{ fontSize: 12.5, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                        Deliverables and agreed schedule for this project.
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {invoice.milestones.map((m, idx) => (
+                        <div
+                          key={m.id}
+                          style={{
+                            padding: '16px 20px',
+                            background: 'var(--bg-surface-elevated)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: 12,
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                                #{idx + 1}
+                              </span>
+                              <strong style={{ fontSize: 14.5, color: 'var(--text-primary)' }}>
+                                {m.title}
+                              </strong>
+                            </div>
+                            {m.description && (
+                              <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
+                                {m.description}
+                              </div>
+                            )}
+                            {m.dueCondition && (
+                              <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 4 }}>
+                                Target condition: {m.dueCondition}
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
+                              {formatMinorUnits(m.amountMinor, invoice.currency)}
+                            </div>
+                            <span
+                              style={{
+                                fontSize: 11,
+                                color: 'var(--text-muted)',
+                              }}
+                            >
+                              Agreed Scope
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div
+                  style={{
+                    padding: '48px 24px',
+                    textAlign: 'center',
+                    background: 'var(--bg-surface)',
+                    borderRadius: 14,
+                    border: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  <FileText size={36} color="var(--text-muted)" style={{ margin: '0 auto 12px' }} />
+                  <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+                    Invoice Not Yet Generated
+                  </h4>
+                  <p style={{ fontSize: 13.5, color: 'var(--text-secondary)', margin: 0, maxWidth: 500, marginInline: 'auto' }}>
+                    Commercial invoices and milestone schedules are automatically created once a formal proposal quote is accepted by the client.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
+
+      {/* Invoice Detail Modal */}
+      {invoice && (
+        <InvoiceViewModal
+          isOpen={isInvoiceModalOpen}
+          onClose={() => setIsInvoiceModalOpen(false)}
+          invoice={invoice}
+          isClient={userRoleOnProject === 'client'}
+        />
+      )}
+
+      {/* Call Interface Modal */}
+      <CallInterfaceModal
+        isOpen={callStatus !== 'idle'}
+        callType={activeCallSession?.callType || 'voice'}
+        callStatus={callStatus}
+        participants={callParticipants}
+        dailyCall={dailyCall}
+        durationSec={callDurationSec}
+        isMuted={isMuted}
+        isCameraOff={isCameraOff}
+        errorMessage={callError}
+        onToggleMute={toggleMute}
+        onToggleCamera={toggleCamera}
+        onHangUp={endCall}
+        onCloseError={clearCallError}
+        remoteParticipantName={recipientName}
+        projectTitle={request?.title || 'Project Call'}
+      />
     </div>
   );
 };

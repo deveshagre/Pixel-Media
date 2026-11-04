@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useProjectRequests, usePortfolioManager, useReports, useEditorDiscovery } from '../../hooks/useMarketplace';
+import { useProjectRequests, useReports, useEditorDiscovery } from '../../hooks/useMarketplace';
+import { useBilling } from '../../hooks/useBilling';
 import { Report } from '../../types';
 import {
   Inbox,
-  Film,
   CheckCircle,
   Plus,
   Search,
@@ -14,14 +14,15 @@ import {
   ShieldAlert,
   Clock,
   Layers,
+  FileText,
 } from 'lucide-react';
 
 export const OverviewSection: React.FC = () => {
   const { user } = useAuth();
   const { requests, loading: reqLoading } = useProjectRequests();
-  const { items: portfolioItems } = usePortfolioManager();
   const { reports } = useReports();
   const { editors } = useEditorDiscovery({});
+  const { invoices } = useBilling();
 
   const isEditor = user?.role === 'editor';
   const isAdmin = user?.role === 'admin';
@@ -112,12 +113,14 @@ export const OverviewSection: React.FC = () => {
 
             <div className="card-interactive" style={{ padding: '20px 22px', background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--border-subtle)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span className="text-caption">Published Works</span>
-                <Film size={20} color="#34d399" />
+                <span className="text-caption">Invoices & Quotes</span>
+                <FileText size={20} color="#34d399" />
               </div>
-              <div style={{ fontSize: 28, fontWeight: 800 }}>{portfolioItems.length}</div>
+              <div style={{ fontSize: 28, fontWeight: 800 }}>{invoices.length}</div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-                Showcased on your profile
+                <Link to="/dashboard/invoices" style={{ color: '#34d399', textDecoration: 'none' }}>
+                  View invoices & quotes →
+                </Link>
               </div>
             </div>
 

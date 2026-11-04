@@ -13,10 +13,13 @@ import {
   LogOut,
   X,
   RefreshCw,
+  FileText,
+  MessageSquare,
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useInboxConversations } from '../../hooks/useInboxConversations';
 import { UserRole } from '../../types';
 
 interface SidebarProps {
@@ -27,6 +30,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
   const { user, logout, switchRole } = useAuth();
   const { t } = useLanguage();
+  const { totalUnreadCount } = useInboxConversations();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -47,6 +51,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         { to: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
         { to: '/dashboard/moderation', label: 'Moderation Queue', icon: ShieldAlert },
         { to: '/dashboard/requests', label: 'All Requests', icon: Inbox },
+        { to: '/dashboard/messages', label: 'Messages', icon: MessageSquare, badge: totalUnreadCount },
+        { to: '/dashboard/invoices', label: 'Platform Invoices', icon: FileText },
         { to: '/dashboard/help', label: t.nav.help, icon: HelpCircle },
       ];
     }
@@ -55,6 +61,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       return [
         { to: '/dashboard/overview', label: 'Editor Overview', icon: LayoutDashboard },
         { to: '/dashboard/requests', label: 'Incoming Briefs', icon: Inbox },
+        { to: '/dashboard/messages', label: 'Messages', icon: MessageSquare, badge: totalUnreadCount },
+        { to: '/dashboard/invoices', label: 'Invoices & Quotes', icon: FileText },
         { to: '/dashboard/portfolio', label: 'Portfolio Works', icon: FolderKanban },
         { to: '/dashboard/profile', label: 'Profile & Rates', icon: Settings },
         { to: `/editors/${user?.id || 'editor-1'}`, label: 'Public Profile', icon: Eye, isExternal: true },
@@ -66,6 +74,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
     return [
       { to: '/dashboard/overview', label: 'Client Overview', icon: LayoutDashboard },
       { to: '/dashboard/requests', label: 'My Project Briefs', icon: Inbox },
+      { to: '/dashboard/messages', label: 'Messages', icon: MessageSquare, badge: totalUnreadCount },
+      { to: '/dashboard/invoices', label: 'Invoices & Milestones', icon: FileText },
       { to: '/explore', label: 'Find Editors', icon: Search },
       { to: '/dashboard/services', label: 'Services Catalog', icon: Sparkles },
       { to: '/dashboard/help', label: t.nav.help, icon: HelpCircle },
@@ -160,9 +170,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                 to={item.to}
                 onClick={onCloseMobile}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
               >
-                <Icon size={18} />
-                <span>{item.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <Icon size={18} />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span
+                    style={{
+                      background: 'var(--accent-lavender)',
+                      color: '#ffffff',
+                      borderRadius: 10,
+                      padding: '1px 6px',
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </NavLink>
             );
           })}

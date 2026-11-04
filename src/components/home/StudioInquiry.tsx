@@ -69,7 +69,7 @@ export const StudioInquiry: React.FC<StudioInquiryProps> = ({
               <h3 style={{ fontSize: 22, fontWeight: 600, color: '#ffffff', marginBottom: 8 }}>
                 Inquiry Received
               </h3>
-              <p style={{ color: '#a1a1aa', maxWidth: 460, margin: '0 auto 24px', fontSize: 15 }}>
+              <p style={{ color: 'var(--text-secondary)', maxWidth: 460, margin: '0 auto 24px', fontSize: 15 }}>
                 Thank you for reaching out. We have logged your request into our production review queue.
               </p>
               <button
@@ -87,7 +87,7 @@ export const StudioInquiry: React.FC<StudioInquiryProps> = ({
           ) : (
             <form onSubmit={handleSubmit} className="inquiry-form-grid">
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#a1a1aa', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                   Project Name or Campaign *
                 </label>
                 <input
@@ -101,7 +101,7 @@ export const StudioInquiry: React.FC<StudioInquiryProps> = ({
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#a1a1aa', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                   Creative Discipline
                 </label>
                 <select
@@ -118,7 +118,7 @@ export const StudioInquiry: React.FC<StudioInquiryProps> = ({
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#a1a1aa', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                   Desired Timeline
                 </label>
                 <select
@@ -133,7 +133,7 @@ export const StudioInquiry: React.FC<StudioInquiryProps> = ({
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#a1a1aa', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                   Estimated Budget
                 </label>
                 <select
@@ -149,7 +149,7 @@ export const StudioInquiry: React.FC<StudioInquiryProps> = ({
               </div>
 
               <div className="form-full-width">
-                <label style={{ display: 'block', fontSize: 12, color: '#a1a1aa', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                   Project Brief & Notes
                 </label>
                 <textarea

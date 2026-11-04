@@ -107,7 +107,7 @@ export interface PortfolioItem {
   updatedAt?: string;
 }
 
-// --- Milestone Agreement (Escrow & Payment Ready Structure) ---
+// --- Milestone Agreement (Milestone Accounting & Payment Structure) ---
 export interface MilestoneAgreement {
   id: string;
   title: string;
@@ -162,7 +162,7 @@ export interface ProjectRequest {
   editor?: UserProfile;
 }
 
-// --- Project Collaboration, Messaging & Creative Review ---
+// --- Project Collaboration, Messaging & Real-Time Communication ---
 export interface ProjectMessage {
   id: string;
   requestId: string;
@@ -173,6 +173,80 @@ export interface ProjectMessage {
   content: string;
   readBy?: string[];
   createdAt: string;
+}
+
+export type CallType = 'audio' | 'video' | 'voice';
+export type CallStatus =
+  | 'idle'
+  | 'initiating'
+  | 'ringing'
+  | 'connecting'
+  | 'connected'
+  | 'declined'
+  | 'missed'
+  | 'ended'
+  | 'failed';
+
+export interface CallSession {
+  id: string;
+  requestId: string;
+  projectId?: string;
+  callerId: string;
+  callerName?: string;
+  callerRole?: 'client' | 'editor';
+  receiverId: string;
+  receiverName?: string;
+  callType: CallType;
+  status: CallStatus;
+  roomName?: string;
+  roomUrl?: string;
+  meetingToken?: string;
+  token?: string;
+  startedAt?: string;
+  endedAt?: string;
+  durationSeconds?: number;
+  failureReason?: string;
+  createdAt: string;
+}
+
+export interface CallInvitation {
+  id: string;
+  requestId?: string;
+  projectId?: string;
+  projectTitle?: string;
+  callerId: string;
+  callerName: string;
+  callerAvatarUrl?: string;
+  callerRole?: 'client' | 'editor';
+  receiverId: string;
+  callType: CallType;
+  status: 'ringing' | 'accepted' | 'declined' | 'missed' | 'ended';
+  createdAt: string;
+  roomUrl?: string;
+  meetingToken?: string;
+}
+
+export interface ConversationPreview {
+  requestId: string;
+  projectId: string;
+  projectTitle: string;
+  projectStatus: RequestStatus;
+  counterpartyId: string;
+  counterpartyName: string;
+  counterpartyRole: 'client' | 'editor';
+  counterpartyAvatarUrl?: string;
+  participantId: string;
+  participantName: string;
+  participantRole: 'client' | 'editor';
+  participantAvatarUrl?: string;
+  lastMessage?: ProjectMessage | {
+    content: string;
+    createdAt: string;
+    senderId?: string;
+    senderName?: string;
+  };
+  unreadCount: number;
+  updatedAt: string;
 }
 
 export type ReviewVersionStatus = 'pending_review' | 'changes_requested' | 'approved';
@@ -359,3 +433,7 @@ export interface ServiceDetail {
   supportedFormats: string[];
   startingPrice: string;
 }
+
+// Re-export billing, milestone accounting and payment types
+export * from './billing';
+

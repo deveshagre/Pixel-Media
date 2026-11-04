@@ -71,7 +71,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenMobile, onRequestService, 
         </div>
 
         {/* Primary CTA */}
-        <button onClick={onRequestService} className="btn btn-primary btn-sm">
+        <button onClick={onRequestService} className="btn btn-primary btn-sm" aria-label={t.overview.requestService}>
           <Plus size={16} />
           <span>{t.overview.requestService}</span>
         </button>

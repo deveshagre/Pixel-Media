@@ -152,9 +152,9 @@ export const PreviewCanvas: React.FC = () => {
       <div className="nle-monitor-bar">
         <div className="monitor-res-tag">
           <span>{project.aspectRatio}</span>
-          <span style={{ color: '#71717a' }}>•</span>
+          <span style={{ color: 'var(--nle-text-muted)' }}>•</span>
           <span>{project.width}x{project.height}</span>
-          <span style={{ color: '#71717a' }}>•</span>
+          <span style={{ color: 'var(--nle-text-muted)' }}>•</span>
           <span>{fps} fps</span>
         </div>
 

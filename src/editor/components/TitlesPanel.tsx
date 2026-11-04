@@ -103,7 +103,7 @@ const TITLE_PRESETS: TitlePreset[] = [
       fontSize: 32,
       fontWeight: '800',
       color: '#09090b',
-      backgroundColor: '#e4b363',
+      backgroundColor: '#8b5cf6',
       align: 'center',
       presetStyle: 'caption',
     },

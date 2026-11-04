@@ -1,38 +1,37 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
-  Search,
   ArrowRight,
-  ArrowUpRight,
-  MapPin,
-  Clock,
+  Globe,
+  User,
+  RefreshCw,
+  Sliders,
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
-import { MarketplaceNavbar } from '../components/marketplace/MarketplaceNavbar';
-import { ProjectRequestModal } from '../components/marketplace/ProjectRequestModal';
-import { PortfolioDetailModal } from '../components/marketplace/PortfolioDetailModal';
-import { useCategories } from '../hooks/useMarketplace';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../i18n/LanguageContext';
+import { SupportedLanguage, PortfolioItem, EditorCard } from '../types';
 import { DEMO_EDITORS, DEMO_PORTFOLIO_ITEMS, DEMO_EDITOR_SOFTWARE } from '../data/demoEditors';
-import { EditorCard, PortfolioItem } from '../types';
+import { PortfolioDetailModal } from '../components/marketplace/PortfolioDetailModal';
+import { ProjectRequestModal } from '../components/marketplace/ProjectRequestModal';
 
 export const HomePage: React.FC = () => {
-  const navigate = useNavigate();
-  const { categories } = useCategories();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hireTargetEditor, setHireTargetEditor] = useState<EditorCard | null>(null);
-  const [activePortfolioItem, setActivePortfolioItem] = useState<{ item: PortfolioItem; editor: EditorCard } | null>(null);
-  const [howItWorksRole, setHowItWorksRole] = useState<'client' | 'editor'>('client');
+  const { user, switchRole } = useAuth();
+  const { language, setLanguage, supportedLanguages, t } = useLanguage();
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      navigate('/explore');
-    }
+  const [activePortfolioItem, setActivePortfolioItem] = useState<{
+    item: PortfolioItem;
+    editor: EditorCard;
+  } | null>(null);
+  const [hireTargetEditor, setHireTargetEditor] = useState<EditorCard | null>(null);
+
+  const handleToggleRole = async () => {
+    if (!user) return;
+    const nextRole = user.role === 'client' ? 'editor' : 'client';
+    await switchRole(nextRole);
   };
 
-  // Convert top demo editors to EditorCards
+  // Convert top 3 demo editors for showcase attribution
   const featuredEditors: EditorCard[] = DEMO_EDITORS.slice(0, 3).map((ed) => {
     const portfolio = DEMO_PORTFOLIO_ITEMS.filter((p) => p.editorId === ed.id);
     return {
@@ -52,499 +51,395 @@ export const HomePage: React.FC = () => {
     };
   });
 
-  // Featured curated gallery pieces
-  const galleryLead = DEMO_PORTFOLIO_ITEMS[0]; // Apex Horizon
-  const galleryLeadEditor = featuredEditors.find((e) => e.id === galleryLead?.editorId) || featuredEditors[0];
-  const gallerySub1 = DEMO_PORTFOLIO_ITEMS[1]; // Cybernetic Identity
-  const gallerySub1Editor = featuredEditors.find((e) => e.id === gallerySub1?.editorId) || featuredEditors[1];
-  const gallerySub2 = DEMO_PORTFOLIO_ITEMS[2]; // Neon Tokyo
-  const gallerySub2Editor = featuredEditors.find((e) => e.id === gallerySub2?.editorId) || featuredEditors[2];
+  // 3 Curated showcase pieces from verified demo items
+  const showcaseItems = [
+    {
+      item: DEMO_PORTFOLIO_ITEMS[0], // Apex Horizon — Commercial Master
+      editor: featuredEditors[0] || DEMO_EDITORS[0],
+      tag: 'COMMERCIAL MASTER',
+    },
+    {
+      item: DEMO_PORTFOLIO_ITEMS[1], // Cybernetic Identity — 3D Motion
+      editor: featuredEditors[1] || DEMO_EDITORS[1],
+      tag: '3D MOTION & VFX',
+    },
+    {
+      item: DEMO_PORTFOLIO_ITEMS[2], // Neon Tokyo — DaVinci Color Grade
+      editor: featuredEditors[2] || DEMO_EDITORS[2],
+      tag: 'DAVINCI COLOR GRADE',
+    },
+  ].filter((s) => Boolean(s.item));
+
+  // Determine intelligent destinations for the role selection cards
+  const clientDestination = user
+    ? user.role === 'client'
+      ? '/explore'
+      : '/dashboard/overview'
+    : '/signup?role=client';
+
+  const editorDestination = user
+    ? user.role === 'editor'
+      ? '/dashboard/requests'
+      : '/dashboard/overview'
+    : '/signup?role=editor';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-app)', color: 'var(--text-primary)', overflowX: 'hidden' }}>
-      <MarketplaceNavbar />
-
-      {/* Editorial Asymmetric Hero Section */}
-      <section className="market-hero-editorial">
-        <div>
-          <div className="market-hero-meta-kicker">
-            <img src={logoImg} alt="" className="hero-kicker-emblem" aria-hidden="true" />
-            <span className="kicker-dot" />
-            <span>Curated Directory & Talent Marketplace</span>
-            <span>/</span>
-            <span>Vol. 04</span>
-          </div>
-
-          <h1 className="market-hero-title">
-            Find & Hire World-Class <br />
-            <em>Editors & Creative Talent</em>
-          </h1>
-
-          <p className="market-hero-sub">
-            An independent, vetted directory connecting directors, brands, and creators with premier narrative film editors, DaVinci colorists, 3D motion designers, and sound artists.
-          </p>
-        </div>
-
-        <div className="market-hero-right-col">
-          {/* Integrated Search Box */}
-          <form onSubmit={handleSearchSubmit} className="market-search-box">
-            <Search size={16} style={{ color: 'var(--text-muted)' }} />
-            <input
-              type="text"
-              className="market-search-input"
-              placeholder="Try 'YouTube documentary editor', 'DaVinci colorist', '3D motion'..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>Search Talent</span>
-              <ArrowRight size={14} />
-            </button>
-          </form>
-
-          {/* Quick Category Discovery Pills */}
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 8 }}>
-              Specializations Index:
-            </div>
-            <div className="category-pills-wrap" style={{ marginTop: 0 }}>
-              <Link to="/explore?category=video-editing" className="category-pill">
-                <span>Commercial & Narrative</span>
-              </Link>
-              <Link to="/explore?category=motion-graphics" className="category-pill">
-                <span>3D Motion Graphics</span>
-              </Link>
-              <Link to="/explore?category=color-grading" className="category-pill">
-                <span>DaVinci Color Grading</span>
-              </Link>
-              <Link to="/explore?category=audio-post-production" className="category-pill">
-                <span>Sound Design</span>
-              </Link>
-              <Link to="/explore?category=gaming-esports" className="category-pill">
-                <span>Esports & Gaming</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Editorial Trust Strip */}
-      <div className="editorial-trust-strip">
-        <div className="trust-strip-item">
-          <div className="trust-strip-index">01</div>
-          <div>
-            <div className="trust-strip-title">100% Vetted Portfolios</div>
-            <div className="trust-strip-desc">Verified showreels, original raw project stems & broadcast credits.</div>
-          </div>
-        </div>
-
-        <div className="trust-strip-item">
-          <div className="trust-strip-index">02</div>
-          <div>
-            <div className="trust-strip-title">24-48h Brief Responses</div>
-            <div className="trust-strip-desc">Direct communication with lead editors without agency middlemen.</div>
-          </div>
-        </div>
-
-        <div className="trust-strip-item">
-          <div className="trust-strip-index">03</div>
-          <div>
-            <div className="trust-strip-title">Structured Milestone Agreements</div>
-            <div className="trust-strip-desc">Transparent scopes, clear review cycles, and payment-ready contracts.</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Curated Editorial Gallery Spread */}
-      <section className="editorial-gallery-spread">
-        <div className="section-editorial-header">
-          <div>
-            <div className="section-kicker">Curated Portfolio Spread</div>
-            <h2 className="section-editorial-title">Selected Editorial Works</h2>
-          </div>
-          <Link to="/explore" className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>Explore All Works</span>
-            <ArrowRight size={13} />
+    <div className="pm-home-page">
+      {/* 1. Minimal Brand Header */}
+      <header className="pm-header">
+        <div className="pm-header-inner">
+          {/* Logo & Brand Wordmark */}
+          <Link to="/" className="pm-brand" aria-label="Pixel Media Home">
+            <img src={logoImg} alt="Pixel Media" className="pm-brand-logo" />
+            <span>PIXEL MEDIA</span>
           </Link>
-        </div>
 
-        <div className="asymmetric-gallery-grid">
-          {/* Lead Showcase Plate */}
-          {galleryLead && (
-            <div
-              className="gallery-lead-plate"
-              onClick={() => setActivePortfolioItem({ item: galleryLead, editor: galleryLeadEditor })}
-            >
-              <div className="plate-media-wrap">
-                <img
-                  src={galleryLead.thumbnailUrl || galleryLead.thumbnail}
-                  alt={galleryLead.title}
-                />
-              </div>
-              <div className="plate-caption">
-                <div>
-                  <div className="plate-title">{galleryLead.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                    {galleryLead.editorRole || 'Lead Editorial & Color'} • Master Cut
-                  </div>
-                </div>
-                <div className="plate-meta-mono">{galleryLead.projectDuration || '02:14'} • 4K PRORES</div>
-              </div>
-            </div>
-          )}
-
-          {/* Sub Plate 1 */}
-          {gallerySub1 && (
-            <div
-              className="gallery-sub-plate"
-              onClick={() => setActivePortfolioItem({ item: gallerySub1, editor: gallerySub1Editor })}
-            >
-              <div className="plate-media-wrap">
-                <img
-                  src={gallerySub1.thumbnailUrl || gallerySub1.thumbnail}
-                  alt={gallerySub1.title}
-                />
-              </div>
-              <div className="plate-caption">
-                <div>
-                  <div className="plate-title">{gallerySub1.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                    {gallerySub1.editorRole || 'Motion Design'} • Commercial Master
-                  </div>
-                </div>
-                <div className="plate-meta-mono">3D MOTION • BLENDER</div>
-              </div>
-            </div>
-          )}
-
-          {/* Sub Plate 2 */}
-          {gallerySub2 && (
-            <div
-              className="gallery-sub-plate"
-              onClick={() => setActivePortfolioItem({ item: gallerySub2, editor: gallerySub2Editor })}
-            >
-              <div className="plate-media-wrap">
-                <img
-                  src={gallerySub2.thumbnailUrl || gallerySub2.thumbnail}
-                  alt={gallerySub2.title}
-                />
-              </div>
-              <div className="plate-caption">
-                <div>
-                  <div className="plate-title">{gallerySub2.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                    {gallerySub2.editorRole || 'Finishing & Grading'} • Feature Cut
-                  </div>
-                </div>
-                <div className="plate-meta-mono">DAVINCI • COLOR PASS</div>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Discipline Index Section */}
-      <section className="discipline-index-section">
-        <div className="section-editorial-header">
-          <div>
-            <div className="section-kicker">Discipline Directory</div>
-            <h2 className="section-editorial-title">Explore Editors by Creative Discipline</h2>
-          </div>
-          <Link to="/explore" className="btn btn-secondary btn-sm">
-            <span>Directory Index</span>
-          </Link>
-        </div>
-
-        <div className="discipline-table">
-          {categories.slice(0, 6).map((cat, idx) => (
-            <Link
-              key={cat.id}
-              to={`/explore?category=${cat.slug}`}
-              className="discipline-row"
-            >
-              <span className="discipline-num">{(idx + 1).toString().padStart(2, '0')}</span>
-              <span className="discipline-title">{cat.name}</span>
-              <span className="discipline-desc">{cat.description || 'Specialized narrative and commercial post-production masters.'}</span>
-              <span className="discipline-count">Vetted Roster</span>
-              <span className="discipline-arrow">
-                <ArrowUpRight size={18} />
-              </span>
+          {/* Navigation Links */}
+          <nav className="pm-header-nav" aria-label="Main Navigation">
+            <Link to="/explore" className="pm-header-link">
+              Explore Talent
             </Link>
-          ))}
-        </div>
-      </section>
+            <a href="#how-it-works" className="pm-header-link">
+              How It Works
+            </a>
+          </nav>
 
-      {/* Featured Talent Showcase */}
-      <section className="talent-roster-section">
-        <div className="section-editorial-header">
-          <div>
-            <div className="section-kicker">Vetted Creatives</div>
-            <h2 className="section-editorial-title">Featured Editors Ready for Work</h2>
-          </div>
-          <Link to="/explore" className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>Explore All Editors</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        <div className="editor-grid">
-          {featuredEditors.map((editor) => (
-            <div key={editor.id} className="editor-card">
-              <div className="editor-card-header">
-                <div className="editor-avatar-wrap">
-                  {editor.avatarUrl ? (
-                    <img src={editor.avatarUrl} alt={editor.fullName} className="editor-avatar-img" />
-                  ) : (
-                    <div className="editor-avatar-fallback">{editor.fullName.charAt(0)}</div>
-                  )}
-                  <span className={`status-dot ${editor.availability || 'available'}`} />
-                </div>
-
-                <div className="editor-identity">
-                  <div className="editor-name-row">
-                    <Link to={`/editors/${editor.id}`} className="editor-card-name">
-                      {editor.fullName}
-                    </Link>
-                    {editor.experienceLevel === 'pro' && <span className="badge-pro">PRO</span>}
-                  </div>
-                  <div className="editor-card-headline">{editor.headline}</div>
-                  <div className="editor-meta-row">
-                    {editor.location && (
-                      <div className="meta-item">
-                        <MapPin size={11} />
-                        <span>{editor.location}</span>
-                      </div>
-                    )}
-                    <div className="meta-item">
-                      <Clock size={11} />
-                      <span style={{ textTransform: 'capitalize' }}>{editor.availability}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Portfolio Previews */}
-              {editor.portfolioPreview && editor.portfolioPreview.length > 0 && (
-                <div className="editor-portfolio-preview">
-                  {editor.portfolioPreview.map((item) => (
-                    <div
-                      key={item.id}
-                      className="preview-thumb-box"
-                      onClick={() => setActivePortfolioItem({ item, editor })}
-                    >
-                      <img src={item.thumbnailUrl || item.thumbnail} alt={item.title} />
-                      {item.editorRole && <div className="preview-badge-overlay">{item.editorRole}</div>}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Software tags */}
-              <div className="software-badges-row">
-                {editor.software.slice(0, 4).map((sw, idx) => (
-                  <span key={idx} className="software-tag">
-                    {sw}
-                  </span>
+          {/* Right Actions */}
+          <div className="pm-header-actions">
+            {/* Language Switcher */}
+            <div className="lang-selector" style={{ padding: '3px 8px', fontSize: 12 }}>
+              <Globe size={13} />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                aria-label={t.common.language}
+                style={{ fontSize: 12 }}
+              >
+                {supportedLanguages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.code.toUpperCase()}
+                  </option>
                 ))}
+              </select>
+            </div>
+
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {/* Role Mode Toggle */}
+                <button
+                  type="button"
+                  onClick={handleToggleRole}
+                  title={`Currently in ${user.role} mode. Click to toggle role.`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: 11.5,
+                    fontFamily: 'var(--font-mono)',
+                    fontWeight: 500,
+                    background: 'var(--bg-surface-elevated)',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <RefreshCw size={11} />
+                  <span style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {user.role} Mode
+                  </span>
+                </button>
+
+                {/* Dashboard Link */}
+                <Link
+                  to="/dashboard/overview"
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px' }}
+                >
+                  <User size={14} />
+                  <span>Dashboard</span>
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Link
+                  to="/login"
+                  className="btn btn-secondary btn-sm"
+                  style={{ padding: '6px 14px' }}
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px' }}
+                >
+                  <span>Get Started</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* 2. Hero Section */}
+      <main>
+        <section className="pm-hero-section">
+          <div className="pm-hero-content">
+            {/* Eyebrow */}
+            <div className="pm-eyebrow">
+              <span className="pm-eyebrow-dot" />
+              <span>YOUR NEXT CREATIVE PROJECT STARTS HERE</span>
+            </div>
+
+            {/* Main Heading */}
+            <h1 className="pm-main-heading">Ideas deserve better visuals.</h1>
+
+            {/* Supporting Text */}
+            <p className="pm-supporting-text">
+              Find the right creative talent. Or turn your editing skills into your next opportunity.
+            </p>
+          </div>
+
+          {/* 3. The Two Prominent Interactive Role Choices */}
+          <div className="pm-role-grid">
+            {/* Client Role Card */}
+            <Link
+              to={clientDestination}
+              className="pm-role-card"
+              aria-label="I'm a Client — I need a creative for my project. Hire talent"
+            >
+              <div className="pm-role-card-header">
+                <span className="pm-role-kicker">FOR CLIENTS &amp; STUDIOS</span>
+                <h2 className="pm-role-title">I'm a Client</h2>
+                <p className="pm-role-desc">I need a creative for my project.</p>
               </div>
 
-              {/* Card Footer */}
-              <div className="editor-card-footer">
-                <div>
-                  <span className="editor-card-rate">Starting Rate</span>
-                  <span className="editor-card-price">${editor.startingPrice}</span>
+              {/* Directorial Framing Abstract Graphic */}
+              <div className="pm-role-visual-plate">
+                <div className="pm-viewfinder-plate">
+                  <div className="pm-viewfinder-graphic">
+                    <span className="pm-viewfinder-aspect">[ 2.39:1 CINEMATIC ]</span>
+                  </div>
+                  <div className="pm-viewfinder-tracks">
+                    <div className="pm-viewfinder-track video" />
+                    <div className="pm-viewfinder-track audio" />
+                  </div>
+                  <span className="pm-viewfinder-timecode">00:01:24:18</span>
                 </div>
+              </div>
 
-                <div className="editor-card-actions">
-                  <Link to={`/editors/${editor.id}`} className="btn btn-secondary btn-sm">
-                    Profile
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setHireTargetEditor(editor)}
-                    className="btn btn-primary btn-sm"
-                    style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+              {/* Card Footer / CTA */}
+              <div className="pm-role-cta-bar">
+                <span className="pm-role-cta-text">
+                  <span>Hire talent</span>
+                </span>
+                <span className="pm-role-cta-arrow" aria-hidden="true">
+                  <ArrowRight size={16} />
+                </span>
+              </div>
+            </Link>
+
+            {/* Editor Role Card */}
+            <Link
+              to={editorDestination}
+              className="pm-role-card"
+              aria-label="I'm an Editor — I want to showcase my skills. Find work"
+            >
+              <div className="pm-role-card-header">
+                <span className="pm-role-kicker">FOR EDITORS &amp; CREATORS</span>
+                <h2 className="pm-role-title">I'm an Editor</h2>
+                <p className="pm-role-desc">I want to showcase my skills.</p>
+              </div>
+
+              {/* Audio Stems & Color Nodes Abstract Graphic */}
+              <div className="pm-role-visual-plate">
+                <div className="pm-editor-plate">
+                  <div className="pm-waveform-stack">
+                    <div className="pm-waveform-bar" style={{ height: '36%' }} />
+                    <div className="pm-waveform-bar" style={{ height: '65%' }} />
+                    <div className="pm-waveform-bar accent" style={{ height: '88%' }} />
+                    <div className="pm-waveform-bar" style={{ height: '48%' }} />
+                    <div className="pm-waveform-bar accent" style={{ height: '94%' }} />
+                    <div className="pm-waveform-bar" style={{ height: '70%' }} />
+                    <div className="pm-waveform-bar" style={{ height: '52%' }} />
+                    <div className="pm-waveform-bar accent" style={{ height: '82%' }} />
+                    <div className="pm-waveform-bar" style={{ height: '40%' }} />
+                  </div>
+                  <div className="pm-waveform-node-badge">
+                    <span className="pm-color-node-icon" title="DaVinci Color Node" />
+                    <span className="pm-codec-badge">4K PRORES 422 HQ</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Footer / CTA */}
+              <div className="pm-role-cta-bar">
+                <span className="pm-role-cta-text">
+                  <span>Find work</span>
+                </span>
+                <span className="pm-role-cta-arrow" aria-hidden="true">
+                  <ArrowRight size={16} />
+                </span>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* 4. Compact Curated Work Showcase */}
+        {showcaseItems.length > 0 && (
+          <section className="pm-showcase-section">
+            <div className="pm-section-header">
+              <div>
+                <div className="pm-section-kicker">CURATED SHOWCASE</div>
+                <h2 className="pm-section-title">Selected Editorial Works</h2>
+              </div>
+              <Link
+                to="/explore"
+                className="btn btn-secondary btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <span>Explore All Works</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="pm-showcase-grid">
+              {showcaseItems.map(({ item, editor, tag }) => {
+                if (!item) return null;
+                const thumb =
+                  item.thumbnailUrl ||
+                  item.thumbnail ||
+                  'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=800&q=80';
+
+                return (
+                  <div
+                    key={item.id}
+                    className="pm-showcase-card"
+                    tabIndex={0}
+                    role="button"
+                    onClick={() => setActivePortfolioItem({ item, editor: editor as EditorCard })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActivePortfolioItem({ item, editor: editor as EditorCard });
+                      }
+                    }}
+                    aria-label={`View work: ${item.title} by ${editor?.fullName || 'Creator'}`}
                   >
-                    <span>Hire</span>
-                    <ArrowUpRight size={13} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+                    <div className="pm-showcase-thumb-wrap">
+                      <img src={thumb} alt={item.title} className="pm-showcase-thumb-img" />
+                      <span className="pm-showcase-role-tag">{tag}</span>
+                    </div>
 
-      {/* Editorial "How It Works" Section */}
-      <section className="editorial-workflow-section">
-        <div className="workflow-header">
-          <div>
-            <div className="section-kicker">Protocol & Engagement</div>
-            <h2 className="section-editorial-title">How Pixel Media Works</h2>
-          </div>
+                    <div className="pm-showcase-body">
+                      <div>
+                        <h3 className="pm-showcase-title">{item.title}</h3>
+                        <div className="pm-showcase-editor">
+                          By {editor?.fullName || 'Featured Editor'}
+                        </div>
+                      </div>
 
-          {/* Toggle Role */}
-          <div className="workflow-toggle-strip">
-            <button
-              type="button"
-              onClick={() => setHowItWorksRole('client')}
-              className={`workflow-toggle-btn ${howItWorksRole === 'client' ? 'active' : ''}`}
-            >
-              For Clients Looking to Hire
-            </button>
-            <button
-              type="button"
-              onClick={() => setHowItWorksRole('editor')}
-              className={`workflow-toggle-btn ${howItWorksRole === 'editor' ? 'active' : ''}`}
-            >
-              For Editors & Creators
-            </button>
-          </div>
-        </div>
-
-        {/* Steps Grid */}
-        {howItWorksRole === 'client' ? (
-          <div className="workflow-steps-grid">
-            <div className="workflow-step-col">
-              <div className="workflow-step-index">[ 01 / DISCOVERY ]</div>
-              <h3 className="workflow-step-title">Discover Top Talent</h3>
-              <p className="workflow-step-desc">
-                Filter by discipline, NLE/VFX software, pricing tier, and availability. Review real showreels and verified portfolio plates.
-              </p>
+                      <div className="pm-showcase-footer">
+                        <span>{item.projectDuration || '02:14'}</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>Click to view details</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-
-            <div className="workflow-step-col">
-              <div className="workflow-step-index">[ 02 / BRIEFING ]</div>
-              <h3 className="workflow-step-title">Dispatch Structured Brief</h3>
-              <p className="workflow-step-desc">
-                Specify your exact story narrative, target deliverables (ProRes/4K/vertical cuts), references, and target budget.
-              </p>
-            </div>
-
-            <div className="workflow-step-col">
-              <div className="workflow-step-index">[ 03 / DELIVERY ]</div>
-              <h3 className="workflow-step-title">Review & Receive Masters</h3>
-              <p className="workflow-step-desc">
-                Collaborate directly with your editor, track milestones, and receive final mastered export stems and project files.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="workflow-steps-grid">
-            <div className="workflow-step-col">
-              <div className="workflow-step-index">[ 01 / CURATION ]</div>
-              <h3 className="workflow-step-title">Build Your Showcase</h3>
-              <p className="workflow-step-desc">
-                Upload your commercial cuts, motion graphics, and color grading reels. Tag the software used (Premiere, DaVinci, Blender).
-              </p>
-            </div>
-
-            <div className="workflow-step-col">
-              <div className="workflow-step-index">[ 02 / INQUIRIES ]</div>
-              <h3 className="workflow-step-title">Receive Structured Inquiries</h3>
-              <p className="workflow-step-desc">
-                Get inquiries with pre-defined deliverables, timelines, and budget expectations instead of vague one-line messages.
-              </p>
-            </div>
-
-            <div className="workflow-step-col">
-              <div className="workflow-step-index">[ 03 / EXECUTION ]</div>
-              <h3 className="workflow-step-title">Accept, Edit & Deliver</h3>
-              <p className="workflow-step-desc">
-                Accept jobs that match your creative style and rate card. Build long-term client relationships and repeat work.
-              </p>
-            </div>
-          </div>
+          </section>
         )}
-      </section>
 
-      {/* Understated Editorial Studio CTA */}
-      <section className="editorial-cta-section">
-        <div className="editorial-cta-box">
-          <div>
-            <h2 className="cta-title">
-              Ready to collaborate with exceptional editorial talent?
-            </h2>
-            <p className="cta-desc">
-              Whether you need a high-impact broadcast commercial cut, a cinematic documentary grade, or want to exhibit your talent as an editor, Pixel Media is your dedicated creative platform.
+        {/* 5. One Concise "How It Works" Section */}
+        <section id="how-it-works" className="pm-workflow-section">
+          <div className="pm-section-header">
+            <div>
+              <div className="pm-section-kicker">HOW IT WORKS</div>
+              <h2 className="pm-section-title">Direct, transparent creative collaboration</h2>
+            </div>
+            <Link
+              to="/explore"
+              className="btn btn-secondary btn-sm"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Sliders size={13} />
+              <span>Browse Catalog</span>
+            </Link>
+          </div>
+
+          <div className="pm-workflow-grid">
+            <div className="pm-workflow-card">
+              <div className="pm-workflow-num">01 / DISCOVERY</div>
+              <h3 className="pm-workflow-title">Direct Discovery</h3>
+              <p className="pm-workflow-desc">
+                Find narrative film editors, DaVinci colorists, and 3D motion designers by verified
+                showreel, NLE software, and rate card without agency middleman markup.
+              </p>
+            </div>
+
+            <div className="pm-workflow-card">
+              <div className="pm-workflow-num">02 / COLLABORATION</div>
+              <h3 className="pm-workflow-title">Creative Collaboration</h3>
+              <p className="pm-workflow-desc">
+                Align directly with your creative. Review cut versions with frame-accurate timestamped
+                feedback and structured project revisions.
+              </p>
+            </div>
+
+            <div className="pm-workflow-card">
+              <div className="pm-workflow-num">03 / DIRECT SETTLEMENT</div>
+              <h3 className="pm-workflow-title">Agree Directly</h3>
+              <p className="pm-workflow-desc">
+                Set milestone timing and compensation directly together. Track deliverables and approvals
+                in Pixel Media, with payment arranged between client and creator.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* 6. Minimal Footer */}
+      <footer className="pm-footer">
+        <div className="pm-footer-inner">
+          <div className="pm-footer-brand-wrap">
+            <Link to="/" className="pm-brand" aria-label="Pixel Media Home">
+              <img src={logoImg} alt="Pixel Media" className="pm-brand-logo" />
+              <span>PIXEL MEDIA</span>
+            </Link>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, marginTop: 4 }}>
+              A home for creative talent.
             </p>
           </div>
-          <div className="cta-actions">
-            <Link to="/explore" className="btn btn-primary btn-lg" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <span>Find an Editor Now</span>
-              <ArrowRight size={15} />
+
+          <div className="pm-footer-links">
+            <Link to="/explore" className="pm-footer-link">
+              Explore Talent
             </Link>
-            <Link to="/signup" className="btn btn-secondary btn-lg" style={{ width: '100%', textAlign: 'center' }}>
-              Join as a Video Editor
+            <Link to="/signup?role=client" className="pm-footer-link">
+              Client Portal
+            </Link>
+            <Link to="/signup?role=editor" className="pm-footer-link">
+              Editor Workspace
+            </Link>
+            <Link to="/dashboard/help" className="pm-footer-link">
+              Help Center
             </Link>
           </div>
         </div>
-      </section>
 
-      {/* Understated Editorial Footer */}
-      <footer className="editorial-footer">
-        <div className="footer-inner">
+        <div className="pm-footer-bottom">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <img
-                src={logoImg}
-                alt="Pixel Media"
-                className="footer-logo-img"
-              />
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600 }}>Pixel Media</span>
-            </div>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 300 }}>
-              The curated talent directory and freelancing marketplace for video editors, colorists, sound designers, and motion directors.
-            </p>
+            &copy; 2026 Pixel Media. Independent creative marketplace.
           </div>
-
-          <div>
-            <div className="footer-col-title">Marketplace</div>
-            <div className="footer-link-list">
-              <Link to="/explore">Explore Talent</Link>
-              <Link to="/explore?category=video-editing">Film & Commercial</Link>
-              <Link to="/explore?category=motion-graphics">Motion Design</Link>
-              <Link to="/explore?category=color-grading">Color Grading</Link>
-              <Link to="/explore?category=audio-post-production">Audio Post</Link>
-            </div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+            CURATED CREATIVE PLATFORM
           </div>
-
-          <div>
-            <div className="footer-col-title">Platform</div>
-            <div className="footer-link-list">
-              <Link to="/login">Client Login</Link>
-              <Link to="/signup">Join as Editor</Link>
-              <Link to="/dashboard/overview">Creator Dashboard</Link>
-              <Link to="/dashboard/requests">Project Requests</Link>
-            </div>
-          </div>
-
-          <div>
-            <div className="footer-col-title">Editorial Note</div>
-            <p style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              All showcase materials remain the intellectual property of their respective creators and production houses. Verified independently for quality and narrative craft.
-            </p>
-          </div>
-        </div>
-
-        <div className="footer-bottom-bar">
-          <div>© {new Date().getFullYear()} Pixel Media. Independent Creative Marketplace.</div>
-          <div>ISSUE NO. 04 / MONOCHROME EDITION</div>
         </div>
       </footer>
-
-      {/* Project Request Modal */}
-      {hireTargetEditor && (
-        <ProjectRequestModal
-          editor={hireTargetEditor}
-          isOpen={Boolean(hireTargetEditor)}
-          onClose={() => setHireTargetEditor(null)}
-          onSuccess={() => {
-            setHireTargetEditor(null);
-            alert('Your structured brief has been sent to the editor.');
-          }}
-        />
-      )}
 
       {/* Portfolio Item Detail Lightbox Modal */}
       {activePortfolioItem && (
@@ -557,6 +452,18 @@ export const HomePage: React.FC = () => {
             const ed = activePortfolioItem.editor;
             setActivePortfolioItem(null);
             setHireTargetEditor(ed);
+          }}
+        />
+      )}
+
+      {/* Project Request Modal */}
+      {hireTargetEditor && (
+        <ProjectRequestModal
+          editor={hireTargetEditor}
+          isOpen={Boolean(hireTargetEditor)}
+          onClose={() => setHireTargetEditor(null)}
+          onSuccess={() => {
+            setHireTargetEditor(null);
           }}
         />
       )}

@@ -549,6 +549,82 @@ function syncLocalRequestAcrossParties(updatedReq: ProjectRequest) {
   });
 }
 
+function autoGenerateLocalInvoice(req: ProjectRequest) {
+  if (!req.proposal) return;
+  try {
+    const raw = localStorage.getItem('pixel_media_invoices');
+    const invoices = raw ? JSON.parse(raw) : [];
+    if (invoices.some((i: { requestId: string }) => i.requestId === req.id)) return;
+
+    const milestones =
+      req.proposal.milestones && req.proposal.milestones.length > 0
+        ? req.proposal.milestones.map((m, idx: number) => ({
+            id: `ms-inv-${Date.now()}-${idx + 1}`,
+            milestoneAgreementId: m.id,
+            title: m.title,
+            description: m.description,
+            amountMinor: Math.round(Number(m.amount) * 100),
+            status: 'pending',
+            dueCondition: `Milestone ${idx + 1} completion and sign-off`,
+          }))
+        : [
+            {
+              id: `ms-inv-${Date.now()}-1`,
+              title: 'Full Production Master & Final Delivery',
+              description: req.proposal.scopeSummary,
+              amountMinor: Math.round(Number(req.proposal.quotedPrice) * 100),
+              status: 'pending',
+              dueCondition: 'Final master export review and client approval',
+            },
+          ];
+
+    const subtotalMinor = milestones.reduce(
+      (acc: number, m: { amountMinor: number }) => acc + m.amountMinor,
+      0
+    );
+    const platformFeeMinor = Math.round(subtotalMinor * 0.05);
+    const totalMinor = subtotalMinor + platformFeeMinor;
+    const seq = invoices.length + 1;
+
+    const newInvoice = {
+      id: `inv-${Date.now()}`,
+      invoiceNumber: `INV-2026-${String(seq).padStart(4, '0')}`,
+      requestId: req.id,
+      proposalId: req.proposal.id,
+      projectTitle: req.title,
+      clientId: req.clientId,
+      clientName: req.client?.fullName || 'Client Producer',
+      clientEmail: req.client?.email,
+      editorId: req.editorId,
+      editorName: req.editor?.fullName || 'Creator',
+      currency: 'USD',
+      subtotalMinor,
+      platformFeeMinor,
+      platformFeeRate: 0.05,
+      taxMinor: 0,
+      taxRate: 0,
+      totalMinor,
+      amountPaidMinor: 0,
+      amountReleasedMinor: 0,
+      status: 'issued',
+      milestones,
+      issuedAt: new Date().toISOString(),
+      dueDate: req.proposal.estimatedDelivery,
+      notes: `Proposal reference #${req.proposal.id.slice(0, 8)}. Scope: ${req.proposal.scopeSummary}`,
+      taxComplianceNote:
+        'Platform intermediary invoice. Official B2B tax exemptions apply where validated.',
+      isDemo: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    invoices.unshift(newInvoice);
+    localStorage.setItem('pixel_media_invoices', JSON.stringify(invoices));
+  } catch (e) {
+    console.error('Error auto-generating invoice', e);
+  }
+}
+
 // ---- Project Requests ----
 export function useProjectRequests() {
   const { user } = useAuth();
@@ -797,6 +873,7 @@ export function useProjectRequests() {
         const target = updated.find((r) => r.id === requestId);
         if (target) {
           syncLocalRequestAcrossParties(target);
+          autoGenerateLocalInvoice(target);
         }
 
         return updated;

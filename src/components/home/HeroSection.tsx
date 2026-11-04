@@ -308,7 +308,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
-                  color: isPlaying ? '#ffffff' : '#a1a1aa',
+                  color: isPlaying ? '#ffffff' : 'var(--text-secondary)',
                   padding: '4px 8px',
                 }}
                 aria-label={isPlaying ? 'Pause Reel' : 'Play Reel'}

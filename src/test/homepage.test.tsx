@@ -1,19 +1,32 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { LanguageProvider } from '../i18n/LanguageContext';
 import { AuthProvider } from '../context/AuthContext';
 import { ClientDataProvider } from '../context/ClientDataContext';
 import { HomePage } from '../pages/HomePage';
 import { ExplorePage } from '../pages/ExplorePage';
+import { SignupPage } from '../pages/SignupPage';
 
-describe('Pixel Media — Freelancing Marketplace Homepage & Discovery', () => {
+// Route inspector helper to check current location and search query
+const LocationInspector: React.FC = () => {
+  const location = useLocation();
+  return (
+    <div data-testid="location-path">
+      {location.pathname}
+      {location.search}
+    </div>
+  );
+};
+
+describe('Pixel Media — Simplified Homepage & Interactive Role Selection', () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem('pixel_media_guest', 'true');
   });
 
-  it('renders the marketplace homepage with branding, headline, and search box', () => {
+  it('renders the simplified homepage with new headline, eyebrow, and two prominent role choices', () => {
     render(
       <LanguageProvider>
         <AuthProvider>
@@ -26,62 +39,214 @@ describe('Pixel Media — Freelancing Marketplace Homepage & Discovery', () => {
       </LanguageProvider>
     );
 
-    // Marketplace Brand
+    // 1. Brand Wordmark & Logo
     expect(screen.getAllByText(/Pixel Media/i)[0]).toBeInTheDocument();
 
-    // Primary Navigation
-    expect(screen.getAllByRole('link', { name: /find editors/i })[0]).toBeInTheDocument();
+    // 2. Eyebrow
+    expect(screen.getByText(/YOUR NEXT CREATIVE PROJECT STARTS HERE/i)).toBeInTheDocument();
 
-    // Hero Headline
+    // 3. Main Heading & Supporting Text
     expect(
-      screen.getByRole('heading', { level: 1, name: /find & hire world-class/i })
+      screen.getByRole('heading', { level: 1, name: /ideas deserve better visuals\./i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/find the right creative talent\. or turn your editing skills into your next opportunity\./i)
     ).toBeInTheDocument();
 
-    // Search Box
-    const searchInput = screen.getByPlaceholderText(/try 'youtube documentary editor'/i);
-    expect(searchInput).toBeInTheDocument();
+    // 4. Two Prominent Interactive Role Choices
+    expect(screen.getByRole('heading', { level: 2, name: /i'm a client/i })).toBeInTheDocument();
+    expect(screen.getByText(/i need a creative for my project\./i)).toBeInTheDocument();
+    expect(screen.getByText(/hire talent/i)).toBeInTheDocument();
 
-    // Featured categories pills
-    expect(screen.getByText(/Commercial & Narrative/i)).toBeInTheDocument();
-    expect(screen.getByText(/3D Motion Graphics/i)).toBeInTheDocument();
-    expect(screen.getByText(/DaVinci Color Grading/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /i'm an editor/i })).toBeInTheDocument();
+    expect(screen.getByText(/i want to showcase my skills\./i)).toBeInTheDocument();
+    expect(screen.getByText(/find work/i)).toBeInTheDocument();
 
-    // Trust indicators
-    expect(screen.getByText(/100% Vetted Portfolios/i)).toBeInTheDocument();
-    expect(screen.getByText(/24-48h Brief Responses/i)).toBeInTheDocument();
+    // 5. How It Works Section
+    expect(screen.getByRole('heading', { level: 2, name: /direct, transparent creative collaboration/i })).toBeInTheDocument();
+    expect(screen.getByText(/01 \/ DISCOVERY/i)).toBeInTheDocument();
+    expect(screen.getByText(/02 \/ COLLABORATION/i)).toBeInTheDocument();
+    expect(screen.getByText(/03 \/ DIRECT SETTLEMENT/i)).toBeInTheDocument();
   });
 
-  it('renders featured editors and opens the structured project brief hire modal', async () => {
+  it('routes unauthenticated visitors choosing "I\'m a Client" to signup with role=client', async () => {
     render(
       <LanguageProvider>
         <AuthProvider>
           <ClientDataProvider>
             <MemoryRouter initialEntries={['/']}>
-              <HomePage />
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/signup"
+                  element={
+                    <div>
+                      <LocationInspector />
+                      <SignupPage />
+                    </div>
+                  }
+                />
+              </Routes>
             </MemoryRouter>
           </ClientDataProvider>
         </AuthProvider>
       </LanguageProvider>
     );
 
-    // Featured editors are present
-    expect(screen.getByText(/Maya Chen/i)).toBeInTheDocument();
-    expect(screen.getByText(/Jake Morrison/i)).toBeInTheDocument();
+    const clientCard = screen.getByRole('link', {
+      name: /i'm a client/i,
+    });
+    expect(clientCard).toBeInTheDocument();
+    fireEvent.click(clientCard);
 
-    // Click "Hire" button on the first editor
-    const hireButtons = screen.getAllByRole('button', { name: /^hire$/i });
-    expect(hireButtons.length).toBeGreaterThan(0);
-    fireEvent.click(hireButtons[0]);
-
-    // Hire Brief Modal opens
     await waitFor(() => {
-      expect(screen.getByText(/send a structured brief and request a milestone quote/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/project title \*/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/project brief & creative direction \*/i)).toBeInTheDocument();
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/signup?role=client');
     });
   });
 
-  it('toggles "How It Works" between Clients and Editors', () => {
+  it('routes unauthenticated visitors choosing "I\'m an Editor" to signup with role=editor', async () => {
+    render(
+      <LanguageProvider>
+        <AuthProvider>
+          <ClientDataProvider>
+            <MemoryRouter initialEntries={['/']}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/signup"
+                  element={
+                    <div>
+                      <LocationInspector />
+                      <SignupPage />
+                    </div>
+                  }
+                />
+              </Routes>
+            </MemoryRouter>
+          </ClientDataProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    );
+
+    const editorCard = screen.getByRole('link', {
+      name: /i'm an editor/i,
+    });
+    expect(editorCard).toBeInTheDocument();
+    fireEvent.click(editorCard);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/signup?role=editor');
+    });
+  });
+
+  it('routes authenticated client directly to explore without unnecessary auth', async () => {
+    localStorage.removeItem('pixel_media_guest');
+    localStorage.setItem(
+      'pixel_media_auth_user',
+      JSON.stringify({
+        id: 'client-1',
+        email: 'client@studio.com',
+        fullName: 'Client Producer',
+        role: 'client',
+      })
+    );
+
+    render(
+      <LanguageProvider>
+        <AuthProvider>
+          <ClientDataProvider>
+            <MemoryRouter initialEntries={['/']}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/explore"
+                  element={
+                    <div>
+                      <LocationInspector />
+                      <div>Explore Catalog</div>
+                    </div>
+                  }
+                />
+              </Routes>
+            </MemoryRouter>
+          </ClientDataProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    );
+
+    const clientCard = screen.getByRole('link', {
+      name: /i'm a client/i,
+    });
+    expect(clientCard).toBeInTheDocument();
+    fireEvent.click(clientCard);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/explore');
+    });
+  });
+
+  it('routes authenticated editor directly to dashboard requests without unnecessary auth', async () => {
+    localStorage.removeItem('pixel_media_guest');
+    localStorage.setItem(
+      'pixel_media_auth_user',
+      JSON.stringify({
+        id: 'editor-1',
+        email: 'editor@creative.com',
+        fullName: 'Lead Editor',
+        role: 'editor',
+      })
+    );
+
+    render(
+      <LanguageProvider>
+        <AuthProvider>
+          <ClientDataProvider>
+            <MemoryRouter initialEntries={['/']}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/dashboard/requests"
+                  element={
+                    <div>
+                      <LocationInspector />
+                      <div>Editor Requests Workspace</div>
+                    </div>
+                  }
+                />
+              </Routes>
+            </MemoryRouter>
+          </ClientDataProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    );
+
+    const editorCard = screen.getByRole('link', {
+      name: /i'm an editor/i,
+    });
+    expect(editorCard).toBeInTheDocument();
+    fireEvent.click(editorCard);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/dashboard/requests');
+    });
+  });
+
+  it('preselects the correct role when navigating to signup with query parameters', () => {
+    render(
+      <LanguageProvider>
+        <AuthProvider>
+          <MemoryRouter initialEntries={['/signup?role=editor']}>
+            <SignupPage />
+          </MemoryRouter>
+        </AuthProvider>
+      </LanguageProvider>
+    );
+
+    const editorBtn = screen.getByRole('button', { name: /work as editor/i });
+    expect(editorBtn).toHaveClass('btn-primary');
+  });
+
+  it('opens portfolio detail modal when clicking a curated showcase card', async () => {
     render(
       <LanguageProvider>
         <AuthProvider>
@@ -94,19 +259,25 @@ describe('Pixel Media — Freelancing Marketplace Homepage & Discovery', () => {
       </LanguageProvider>
     );
 
-    // Initial state: For Clients
-    expect(screen.getByText(/Dispatch Structured Brief/i)).toBeInTheDocument();
+    // Curated showcase cards are rendered
+    expect(screen.getByText(/Selected Editorial Works/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Apex Horizon/i)[0]).toBeInTheDocument();
 
-    // Switch to Editors view
-    const forEditorsBtn = screen.getByRole('button', { name: /for editors & creators/i });
-    fireEvent.click(forEditorsBtn);
+    const showcaseCard = screen.getByRole('button', {
+      name: /view work: apex horizon/i,
+    });
+    fireEvent.click(showcaseCard);
 
-    // Should now show editor workflow
-    expect(screen.getByText(/Build Your Showcase/i)).toBeInTheDocument();
-    expect(screen.getByText(/Receive Structured Inquiries/i)).toBeInTheDocument();
+    // Lightbox modal opens with full item detail and close button
+    await waitFor(() => {
+      expect(screen.getByLabelText(/close dialog/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/full commercial edit for luxury automotive brand launch/i)
+      ).toBeInTheDocument();
+    });
   });
 
-  it('renders the explore page with discipline filter chips and software selector', async () => {
+  it('renders the explore talent directory page properly', async () => {
     render(
       <LanguageProvider>
         <AuthProvider>
@@ -119,19 +290,11 @@ describe('Pixel Media — Freelancing Marketplace Homepage & Discovery', () => {
       </LanguageProvider>
     );
 
-    // Page Heading
     expect(
       screen.getByRole('heading', { level: 1, name: /find & hire video editors & creators/i })
     ).toBeInTheDocument();
 
-    // Software & discipline filters
     expect(screen.getByLabelText(/filter by software/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/filter by experience level/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /all disciplines/i })).toBeInTheDocument();
-
-    // Editor cards loaded
-    await waitFor(() => {
-      expect(screen.getByText(/Maya Chen/i)).toBeInTheDocument();
-    });
   });
 });

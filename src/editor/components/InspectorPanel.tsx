@@ -75,7 +75,7 @@ export const InspectorPanel: React.FC = () => {
           </div>
 
           <div style={{ marginTop: 20, padding: 12, background: 'rgba(255,255,255,0.02)', borderRadius: 6 }}>
-            <span style={{ fontSize: 11, color: '#71717a' }}>
+            <span style={{ fontSize: 11, color: 'var(--nle-text-muted)' }}>
               Select any clip on the timeline to inspect and edit its transforms, typography, audio gain, and keyframes.
             </span>
           </div>
@@ -506,7 +506,7 @@ export const InspectorPanel: React.FC = () => {
 
             {/* List of active keyframes */}
             <div className="active-kf-list">
-              <span style={{ fontSize: 11, color: '#71717a', display: 'block', margin: '14px 0 6px' }}>
+              <span style={{ fontSize: 11, color: 'var(--nle-text-muted)', display: 'block', margin: '14px 0 6px' }}>
                 Keyframe Tracks on this Clip:
               </span>
 

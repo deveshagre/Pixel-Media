@@ -10,6 +10,8 @@ import { MarketplaceRequestsView } from './components/dashboard/MarketplaceReque
 import { EditorPortfolioManager } from './components/dashboard/EditorPortfolioManager';
 import { EditorProfileSettings } from './components/dashboard/EditorProfileSettings';
 import { AdminModerationView } from './components/dashboard/AdminModerationView';
+import { InvoicesListView } from './components/billing/InvoicesListView';
+import { CreatorPayoutSettings } from './components/billing/CreatorPayoutSettings';
 import { ServicesSection } from './components/services/ServicesSection';
 import { HelpCenterSection } from './components/help/HelpCenterSection';
 import { HomePage } from './pages/HomePage';
@@ -18,6 +20,7 @@ import { EditorProfilePage } from './pages/EditorProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { ProjectWorkspaceView } from './pages/ProjectWorkspaceView';
+import { UnifiedInboxView } from './components/dashboard/UnifiedInboxView';
 import { CinematicIntro, useCinematicIntro } from './components/cinematic/CinematicIntro';
 
 export const App: React.FC = () => {
@@ -76,7 +79,10 @@ export const App: React.FC = () => {
                 <Route index element={<Navigate to="/dashboard/overview" replace />} />
                 <Route path="overview" element={<OverviewSection />} />
                 <Route path="requests" element={<MarketplaceRequestsView />} />
+                <Route path="messages" element={<UnifiedInboxView />} />
                 <Route path="workspace/:requestId" element={<ProjectWorkspaceView />} />
+                <Route path="invoices" element={<InvoicesListView />} />
+                <Route path="payouts" element={<CreatorPayoutSettings />} />
                 <Route path="portfolio" element={<EditorPortfolioManager />} />
                 <Route path="profile" element={<EditorProfileSettings />} />
                 <Route path="moderation" element={<AdminModerationView />} />

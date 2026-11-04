@@ -223,7 +223,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
                   ? 'Finalizing Video Encoding...'
                   : `Rendering Frame ${progress.currentFrame} of ${progress.totalFrames}`}
               </h3>
-              <p style={{ fontSize: 12, color: '#71717a', marginBottom: 20 }}>
+              <p style={{ fontSize: 12, color: 'var(--nle-text-muted)', marginBottom: 20 }}>
                 Compositing layers, keyframe transforms, typography, and audio.
               </p>
 
@@ -251,7 +251,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
               <h3 style={{ fontSize: 16, fontWeight: 600, color: '#ffffff', marginBottom: 6 }}>
                 Master Video Generated Successfully!
               </h3>
-              <p style={{ fontSize: 12, color: '#a1a1aa', marginBottom: 16 }}>
+              <p style={{ fontSize: 12, color: 'var(--nle-text-secondary)', marginBottom: 16 }}>
                 {exportedResult.filename} ({(exportedResult.blob.size / (1024 * 1024)).toFixed(2)} MB)
               </p>
 

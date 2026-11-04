@@ -206,12 +206,12 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               <h3 style={{ fontSize: 24, fontWeight: 600, color: '#ffffff', marginBottom: 4 }}>
                 Color Grading & Retouching Precision
               </h3>
-              <p style={{ fontSize: 13, color: '#a1a1aa', margin: 0 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>
                 {activeBenchmark.category} • {activeBenchmark.specs}
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 12, color: '#71717a', fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                 DRAG SLIDER TO REVEAL MASTER GRADE
               </span>
             </div>
@@ -319,10 +319,10 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                 <h2 style={{ fontSize: 28, fontWeight: 600, color: '#ffffff', marginBottom: 12 }}>
                   {selectedProject.title}
                 </h2>
-                <div style={{ color: '#71717a', fontSize: 14, marginBottom: 20 }}>
+                <div style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 20 }}>
                   Client: {selectedProject.clientName} • Scope: {selectedProject.durationOrScope}
                 </div>
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#a1a1aa', marginBottom: 28 }}>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: 28 }}>
                   {selectedProject.description}
                 </p>
 

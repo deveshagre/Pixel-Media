@@ -1,6 +1,6 @@
 /* ============================================================
    PIXEL MEDIA — DISTINCTIVE ART DIRECTION & EDITORIAL SYSTEM
-   Restrained monochrome foundation • Editorial serif display • 
+   Violet Creative foundation • Editorial serif display •
    Technical monospace metadata • Portfolio-first showcase
    ============================================================ */
 
@@ -1308,3 +1308,40 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   Commercial Invoice Print & Export Styles
+   ============================================================ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #09090b !important;
+  }
+
+  .sidebar,
+  .topbar,
+  .no-print,
+  .filter-tabs,
+  button,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  .invoice-modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .printable-invoice {
+    max-width: 100% !important;
+    max-height: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #09090b !important;
+    overflow: visible !important;
+  }
+}
+

@@ -466,20 +466,37 @@ export function useProjectCollaboration(requestId: string | undefined) {
         createdAt: now,
       };
 
+      // Optimistic update
+      setMessages((prev) => [...prev, newMsg]);
+
       if (isSupabaseConfigured && supabase) {
-        const { error: insErr } = await supabase.from('project_messages').insert({
-          request_id: request.id,
-          sender_id: user.id,
-          sender_role: senderRole,
-          content: trimmed,
-          read_by: [user.id],
-        });
-        if (insErr) throw new Error(insErr.message);
+        try {
+          const { data: insData, error: insErr } = await supabase
+            .from('project_messages')
+            .insert({
+              request_id: request.id,
+              sender_id: user.id,
+              sender_role: senderRole,
+              content: trimmed,
+              read_by: [user.id],
+            })
+            .select()
+            .single();
+
+          if (insErr) throw insErr;
+          if (insData) {
+            newMsg.id = insData.id;
+          }
+        } catch (err: unknown) {
+          // Rollback on failure
+          setMessages((prev) => prev.filter((m) => m.id !== messageId));
+          throw err;
+        }
       }
 
-      // Update state and local storage
+      // Persist in local storage
       setMessages((prev) => {
-        const updated = [...prev, newMsg];
+        const updated = prev.map((m) => (m.id === messageId ? newMsg : m));
         saveLocalList(getStorageMessagesKey(request.id), updated);
         return updated;
       });
@@ -488,6 +505,46 @@ export function useProjectCollaboration(requestId: string | undefined) {
     },
     [user, request]
   );
+
+  // Supabase Realtime subscription for incoming messages
+  useEffect(() => {
+    if (!requestId || !isSupabaseConfigured || !supabase) return;
+
+    const channel = supabase
+      .channel(`project_messages_${requestId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'project_messages',
+          filter: `request_id=eq.${requestId}`,
+        },
+        (payload) => {
+          const m = payload.new as Record<string, unknown>;
+          setMessages((prev) => {
+            if (prev.some((existing) => existing.id === m.id)) return prev;
+            const liveMsg: ProjectMessage = {
+              id: m.id as string,
+              requestId: m.request_id as string,
+              senderId: m.sender_id as string,
+              senderRole: m.sender_role as 'client' | 'editor',
+              content: m.content as string,
+              readBy: (m.read_by as string[]) || [],
+              createdAt: m.created_at as string,
+            };
+            return [...prev, liveMsg];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (supabase) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [requestId]);
 
   /**
    * Mark all unread messages as read by current user.

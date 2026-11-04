@@ -22,7 +22,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LOCAL_USER_KEY = 'pixel_pedia_auth_user';
+const LOCAL_USER_KEY = 'pixel_media_auth_user';
+const LEGACY_USER_KEY = 'pixel_pedia_auth_user';
 
 function mapProfileRow(row: Record<string, unknown>, fallback?: Partial<UserProfile>): UserProfile {
   return {
@@ -91,8 +92,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         // Local mode session restore
         try {
-          const cached = localStorage.getItem(LOCAL_USER_KEY);
-          if (cached && mounted) {
+          const isGuest =
+            localStorage.getItem('pixel_media_guest') === 'true' ||
+            localStorage.getItem(LOCAL_USER_KEY) === 'guest';
+          const cached =
+            localStorage.getItem(LOCAL_USER_KEY) || localStorage.getItem(LEGACY_USER_KEY);
+          if (isGuest && mounted) {
+            setUser(null);
+          } else if (cached && mounted) {
             setUser(JSON.parse(cached));
           } else if (mounted) {
             const demoUser: UserProfile = {
@@ -195,6 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check if there's an existing user with this email
       const existingKey = `pixel_pedia_user_${normalizedEmail}`;
       const existing = localStorage.getItem(existingKey);
+      localStorage.removeItem('pixel_media_guest');
       if (existing) {
         const parsed = JSON.parse(existing);
         setUser(parsed);
@@ -253,6 +261,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               createdAt: new Date().toISOString(),
             };
             setUser(newUser);
+            localStorage.removeItem('pixel_media_guest');
             return { success: true };
           }
           return { success: false, error: 'Sign up failed.' };
@@ -275,6 +284,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createdAt: new Date().toISOString(),
       };
       setUser(newUser);
+      localStorage.removeItem('pixel_media_guest');
       localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(newUser));
       localStorage.setItem(`pixel_pedia_user_${normalizedEmail}`, JSON.stringify(newUser));
       return { success: true };
@@ -307,6 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: new Date().toISOString(),
     };
     setUser(googleUser);
+    localStorage.removeItem('pixel_media_guest');
     localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(googleUser));
     return { success: true };
   }, []);
@@ -323,6 +334,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     try {
       localStorage.removeItem(LOCAL_USER_KEY);
+      localStorage.removeItem(LEGACY_USER_KEY);
+      localStorage.setItem('pixel_media_guest', 'true');
     } catch {
       // ignore
     }

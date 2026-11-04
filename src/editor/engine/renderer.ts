@@ -185,7 +185,7 @@ const renderClip = (
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.lineWidth = 1;
       ctx.strokeRect(-boundsWidth / 2, -boundsHeight / 2, boundsWidth, boundsHeight);
-      ctx.fillStyle = '#a1a1aa';
+      ctx.fillStyle = '#a69bb8';
       ctx.font = '20px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -204,7 +204,7 @@ const renderClip = (
   // Draw selection bounding outline and anchor handles if active
   if (options.drawSelectionOutline && options.selectedClipId === clip.id && boundsWidth > 0 && boundsHeight > 0) {
     ctx.save();
-    ctx.strokeStyle = '#e4b363';
+    ctx.strokeStyle = '#c4a8ff';
     ctx.lineWidth = 2;
     ctx.setLineDash([6, 4]);
     const pad = 8;
@@ -295,7 +295,7 @@ const renderShapeClip = (ctx: CanvasRenderingContext2D, cfg: ShapeConfig): { wid
   const halfW = w / 2;
   const halfH = h / 2;
 
-  ctx.fillStyle = cfg.fill || '#e4b363';
+  ctx.fillStyle = cfg.fill || '#8b5cf6';
 
   if (cfg.shapeType === 'circle') {
     const r = Math.min(w, h) / 2;

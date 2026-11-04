@@ -143,7 +143,7 @@ export const MobileEditorWorkspace: React.FC<MobileEditorWorkspaceProps> = ({
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#f4f4f5' }}>
                   {framesToTimecode(currentFrame, fps)}
                 </span>
-                <span style={{ fontSize: 12, color: '#71717a' }}>
+                <span style={{ fontSize: 12, color: 'var(--nle-text-muted)' }}>
                   Frame {currentFrame} / {project.durationFrames}
                 </span>
               </div>

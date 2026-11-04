@@ -19,6 +19,8 @@ export const DashboardLayout: React.FC = () => {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path.includes('/dashboard/requests')) return 'Project Requests & Briefs';
+    if (path.includes('/dashboard/invoices')) return 'Invoices & Commercial Ledger';
+    if (path.includes('/dashboard/payouts')) return 'Creator Business & Payouts';
     if (path.includes('/dashboard/portfolio')) return 'Portfolio Showcase';
     if (path.includes('/dashboard/profile')) return 'Editor Profile & Rates';
     if (path.includes('/dashboard/moderation')) return 'Moderation & Safety Queue';

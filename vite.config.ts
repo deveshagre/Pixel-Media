@@ -1,9 +1,10 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
+import { pixelMediaApiPlugin } from './src/server/vitePlugin'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), pixelMediaApiPlugin()],
   server: {
     port: 5180,
     strictPort: true,
@@ -14,4 +15,5 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
   },
 })
+
 
